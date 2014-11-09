@@ -1,0 +1,33 @@
+{
+    "name": "ytake/container",
+    "description": "php service container library",
+    "minimum-stability": "dev",
+    "license": "MIT",
+    "keywords": [""],
+    "authors": [
+        {
+            "name": "yuuki.takezawa",
+            "email": "yuuki.takezawa@comnect.jp.net"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "ext-tokenizer": "*",
+        "illuminate/config": "4.2.*@stable",
+        "illuminate/container": "4.2.*@stable",
+        "nikic/php-parser": "~1.*@stable"
+
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.*",
+        "mockery/mockery": "0.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ytake\\Container\\": "src/"
+        }
+    },
+    "suggest": {
+        "ext-apcu": "php caching"
+    }
+}
