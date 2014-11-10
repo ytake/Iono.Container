@@ -77,7 +77,7 @@ class Compiler
                 return self::COMPILED_CLASS_PREFIX . "\\" . $className;
             }
         }
-        
+
         foreach ($this->reflectionClass->getTraitNames() as $trait) {
             $this->traits[] = $trait;
         }
