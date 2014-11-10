@@ -1,6 +1,6 @@
 <?php
 
-use Ytake\Container\Annotations\Annotation\Service;
+use Ytake\Container\Annotations\Annotation\Component;
 
 /**
  * Interface RepositoryInterface
@@ -8,7 +8,7 @@ use Ytake\Container\Annotations\Annotation\Service;
 interface AnnotationRepositoryInterface {}
 
 /**
- * @Service
+ * @Component
  * Class Repository
  */
 class AnnotationRepository implements AnnotationRepositoryInterface {}

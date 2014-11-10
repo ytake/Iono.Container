@@ -24,14 +24,13 @@ foreach($files as $file) {
                 $annotations = $container->getManager()->reader()->getClassAnnotations($reflectionClass);
                 if(count($annotations)) {
                     foreach ($annotations as $annotation) {
-                        if($annotation instanceof \Ytake\Container\Annotations\Annotation\Service) {
+                        if($annotation instanceof \Ytake\Container\Annotations\Annotation\Component) {
                             $interfaces = $reflectionClass->getInterfaceNames();
                             if(count($interfaces) != 1) {
                                 throw new ErrorException("mismatch");
                             }
                             $binding[$interfaces[0]] = [
                                 'binding' => $class,
-                                'filename' => $namespace->getFileName()
                             ];
                         }
                     }
@@ -40,4 +39,4 @@ foreach($files as $file) {
         }
     }
 }
-file_put_contents(__DIR__ . "/../resource/scanned.binding.php", serialize($binding));
+file_put_contents($container->getBasePath() . "/scanned.binding.php", serialize($binding));

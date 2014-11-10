@@ -19,12 +19,16 @@ class Container extends \Illuminate\Container\Container
 
     const CACHING_KEY = "container.bindings";
 
+    /** @var  string $base base path */
+    protected $base = null;
+
     /** @var Manager  */
     protected $manager;
 
     public function __construct()
     {
         $this->manager = new Manager();
+        $this->getBasePath();
     }
 
     /**
@@ -34,22 +38,24 @@ class Container extends \Illuminate\Container\Container
      * @throws BindingResolutionException
      * @see \Illuminate\Container\Container::build
      */
-    public function build($concrete, $parameters = array())
+    public function build($concrete, $parameters = [])
     {
+        $instances = [];
         if ($concrete instanceof Closure) {
             return $concrete($this, $parameters);
         }
         $reflector = new ReflectionClass($concrete);
+        $autoWired = $this->getAutowired($reflector);
+
         if (!$reflector->isInstantiable()) {
             $message = "Target [$concrete] is not instantiable.";
             throw new BindingResolutionException($message);
         }
 
         $constructor = $reflector->getConstructor();
-        $selfClass = get_class($this);
+
         if (is_null($constructor)) {
 
-            $autoWired = $this->getAutowired($reflector);
             if($autoWired) {
                 $reflectionClass = $this->invokeCompiledClass($autoWired);
                 foreach($autoWired as $depend) {
@@ -57,17 +63,18 @@ class Container extends \Illuminate\Container\Container
                         $instances[] = $depend;
                     }
                 }
-                return $reflectionClass->newInstanceArgs(array_merge([new $selfClass], $instances));
+                return $reflectionClass->newInstanceArgs($instances);
             }
             return new $concrete;
         }
+
         $reflectionClass = $this->invokeCompiledClass($reflector);
         $dependencies = $constructor->getParameters();
 
         $parameters = $this->keyParametersByArgument($dependencies, $parameters);
         $instances = $this->getDependencies($dependencies, $parameters);
 
-        return $reflectionClass->newInstanceArgs(array_merge([new $selfClass], $instances));
+        return $reflectionClass->newInstanceArgs($instances);
     }
 
     /**
@@ -76,13 +83,7 @@ class Container extends \Illuminate\Container\Container
      */
     protected function invokeCompiledClass(ReflectionClass $reflector)
     {
-        $compiler = new Compiler(
-            new BuilderFactory(),
-            new Standard(),
-            new Manager(),
-            $reflector,
-            $this
-        );
+        $compiler = new Compiler(new BuilderFactory(), new Standard(), new Manager(), $reflector, $this);
         return new ReflectionClass($compiler->builder());
     }
 
@@ -132,7 +133,31 @@ class Container extends \Illuminate\Container\Container
      */
     public function getBinder()
     {
-        $file = file_get_contents(dirname(realpath(null)) . "/resource/scanned.binding.php");
+        if(!file_exists($this->getBasePath() . "/scanned.binding.php")) {
+            file_put_contents($this->getBasePath() . "/scanned.binding.php", null);
+        }
+        $file = file_get_contents($this->getBasePath() . "/scanned.binding.php");
         apc_store(self::CACHING_KEY, $file);
+    }
+
+    /**
+     * @return string
+     */
+    public function getBasePath()
+    {
+        $this->base = (is_null($this->base)) ? dirname(realpath(__DIR__)) . "/resource" : $this->base;
+        $this->instance('container.base.path', $this->base);
+        return $this->base;
+    }
+
+    /**
+     * @param $path
+     * @return $this
+     */
+    public function setBasePath($path)
+    {
+        $this->base = $path;
+        $this->instance('container.base.path', $this->base);
+        return $this;
     }
 }

@@ -1,2 +1,4 @@
 <?php
-require dirname(realpath(null)) . "/tests/binding/TestBinding.php";
+
+require __DIR__ . "/../vendor/autoload.php";
+require __DIR__ . "/../tests/binding/TestBinding.php";

@@ -3,7 +3,7 @@
     "description": "php service container library",
     "minimum-stability": "stable",
     "license": "MIT",
-    "keywords": [""],
+    "keywords": ["container", "inject", "reflection"],
     "authors": [
         {
             "name": "yuuki.takezawa",

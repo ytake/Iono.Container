@@ -6,6 +6,8 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 /**
  * Class Manager
  * @package Ytake\Container\Annotations
+ * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
+ * @license http://opensource.org/licenses/MIT MIT
  */
 class Manager
 {

@@ -1,1 +1,0 @@
-a:1:{s:29:"AnnotationRepositoryInterface";a:2:{s:7:"binding";s:20:"AnnotationRepository";s:8:"filename";s:74:"/Applications/MAMP/htdocs/Container.Compiler/tests/binding/TestBinding.php";}}

@@ -2,7 +2,7 @@
 
 use Ytake\Container\Annotations\Annotation\Autowired;
 
-class ContainerTest extends \PHPUnit_Framework_TestCase
+class AnnotationContainerTest extends \PHPUnit_Framework_TestCase
 {
     /** @var \Ytake\Container\Container */
     protected $container;
@@ -19,8 +19,13 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     public function testBinder()
     {
+        /** @var TestingClass $class */
         $class = $this->container->make("TestingClass");
-        
+        $reflectionClass = new \ReflectionClass($class);
+        $reflectionProperty = $reflectionClass->getProperty("class");
+        $reflectionProperty->setAccessible(true);
+        $this->assertInstanceOf("AnnotationRepository", $reflectionProperty->getValue($class));
+        $this->assertInstanceOf("AnnotationRepository", $class->get());
     }
 }
 

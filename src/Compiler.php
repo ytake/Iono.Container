@@ -10,6 +10,8 @@ use Ytake\Container\Annotations\Manager as AnnotationManager;
 /**
  * Class Compiler
  * @package Ytake\Container
+ * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
+ * @license http://opensource.org/licenses/MIT MIT
  */
 class Compiler
 {
@@ -33,6 +35,9 @@ class Compiler
 
     /** @var AnnotationManager  */
     protected $annotation;
+
+    /** @var bool  */
+    protected $forceCompile = true;
 
     /**
      * @param BuilderFactory $factory
@@ -60,16 +65,19 @@ class Compiler
      */
     public function builder()
     {
-
         $args = [];
         $nodeName = [];
         $parameters = [];
         $filedInjector = [];
 
         $className = $this->getClassName();
-        if (class_exists(self::COMPILED_CLASS_PREFIX . "\\{$className}")) {
-            return self::COMPILED_CLASS_PREFIX . "\\" . $className;
+
+        if(!$this->forceCompile) {
+            if (class_exists(self::COMPILED_CLASS_PREFIX . "\\{$className}")) {
+                return self::COMPILED_CLASS_PREFIX . "\\" . $className;
+            }
         }
+        
         foreach ($this->reflectionClass->getTraitNames() as $trait) {
             $this->traits[] = $trait;
         }
@@ -80,7 +88,8 @@ class Compiler
         }
 
         $construct = $this->factory->method('__construct');
-        $construct->addParam($this->factory->param("app")->setTypeHint("\\" . get_class($this->container)));
+        // @todo
+        // $construct->addParam($this->factory->param("app")->setTypeHint("\\" . get_class($this->container)));
 
         if($parameters) {
             foreach ($parameters as $c) {
@@ -102,6 +111,7 @@ class Compiler
             }
         }
         if(count($filedInjector)) {
+
             foreach($filedInjector as $target => $inject) {
                 $construct->addStmt(new \PhpParser\Node\Name("{$target} = \${$inject};"));
             }
@@ -129,22 +139,28 @@ class Compiler
             $node = $node->addStmt(new TraitUse($nodeName));
         }
         $class = $node->getNode();
-
         $stmts = [$class];
         $this->putCompileFile($className, $stmts);
+        if (!class_exists(self::COMPILED_CLASS_PREFIX . "\\{$className}")) {
+            require_once $this->container['container.base.path'] . "/compile/{$className}.php";
+        }
         return self::COMPILED_CLASS_PREFIX . "\\" . $className;
     }
 
     /**
      * @param $filename
      * @param $stmts
-     * @return void
+     * @return bool
      */
     protected function putCompileFile($filename, $stmts)
     {
         $namespace = 'namespace ' . self::COMPILED_CLASS_PREFIX. ';';
+        $path = $this->container['container.base.path'] . "/compile/{$filename}.php";
         $output = "<?php\n{$namespace}\n".$this->printer->prettyPrint($stmts);
-        file_put_contents(__DIR__ . "/../resource/compile/{$filename}.php", $output);
+        file_put_contents($path, $output);
+        if(!file_exists($path)) {
+            $this->putCompileFile($filename, $stmts);
+        }
     }
 
     /**
@@ -152,7 +168,7 @@ class Compiler
      */
     protected function getClassName()
     {
-        return "Compiler_" . str_replace("\\", "_", $this->reflectionClass->name);
+        return "Compiler" . str_replace("\\", "", $this->reflectionClass->name);
     }
 
 } 

@@ -5,7 +5,12 @@ use Doctrine\Common\Cache\ApcCache;
 use Doctrine\Common\Annotations\CachedReader;
 use Doctrine\Common\Annotations\AnnotationReader;
 
-
+/**
+ * Class ApcReader
+ * @package Ytake\Container\Annotations
+ * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
+ * @license http://opensource.org/licenses/MIT MIT
+ */
 class ApcReader
 {
 
