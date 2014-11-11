@@ -6,7 +6,7 @@ use PhpParser\BuilderFactory;
 use PhpParser\Node\Stmt\TraitUse;
 use PhpParser\PrettyPrinter\Standard;
 use Doctrine\Common\Annotations\Reader;
-use Ytake\Container\Annotations\NewInstance;
+use Ytake\Container\NewInstance;
 
 /**
  * Class Compiler
@@ -22,16 +22,16 @@ class Compiler
     /** @var BuilderFactory */
     protected $factory;
 
-    /** @var Standard  */
+    /** @var Standard */
     protected $printer;
 
-    /** @var ReflectionClass  */
+    /** @var ReflectionClass */
     protected $reflectionClass;
 
-    /** @var array  */
+    /** @var array */
     protected $traits = [];
 
-    /** @var bool  */
+    /** @var bool */
     protected $forceCompile = true;
 
     /**
@@ -55,7 +55,7 @@ class Compiler
 
         $className = $this->getClassName();
 
-        if(!$this->forceCompile) {
+        if (!$this->forceCompile) {
             if (class_exists(self::COMPILED_CLASS_PREFIX . "\\{$className}")) {
                 return self::COMPILED_CLASS_PREFIX . "\\" . $className;
             }
@@ -74,7 +74,7 @@ class Compiler
         // @todo
         // $construct->addParam($this->factory->param("app")->setTypeHint("\\" . get_class($this->container)));
 
-        if($parameters) {
+        if ($parameters) {
             foreach ($parameters as $c) {
                 if ($c->getClass()) {
                     $construct->addParam($this->factory->param($c->name)->setTypeHint("\\" . $c->getClass()->name));
@@ -84,18 +84,18 @@ class Compiler
                 }
                 $args[] = new \PhpParser\Node\Arg(new \PhpParser\Node\Expr\Variable($c->name));
             }
-        // construct, parameter無し
-        }else{
-            foreach($this->reflectionClass as $key => $param) {
-                if($key !== "name") {
+            // construct, parameter無し
+        } else {
+            foreach ($this->reflectionClass as $key => $param) {
+                if ($key !== "name") {
                     $filedInjector["\$this->" . $key] = $key;
                     $construct->addParam($this->factory->param($key)->setTypeHint("\\" . get_class($param)));
                 }
             }
         }
-        if(count($filedInjector)) {
+        if (count($filedInjector)) {
 
-            foreach($filedInjector as $target => $inject) {
+            foreach ($filedInjector as $target => $inject) {
                 $construct->addStmt(new \PhpParser\Node\Name("{$target} = \${$inject};"));
             }
         }
@@ -107,8 +107,8 @@ class Compiler
                 )
             );
         }
-        if(count($this->traits)) {
-            foreach($this->traits as $trait) {
+        if (count($this->traits)) {
+            foreach ($this->traits as $trait) {
                 $nodeName[] = new \PhpParser\Node\Name("\\" . $trait);
             }
         }
@@ -118,7 +118,7 @@ class Compiler
             ->makeFinal()
             ->addStmt($construct);
 
-        if(count($nodeName)) {
+        if (count($nodeName)) {
             $node = $node->addStmt(new TraitUse($nodeName));
         }
         $class = $node->getNode();
@@ -137,11 +137,11 @@ class Compiler
      */
     protected function putCompileFile($filename, $stmts)
     {
-        $namespace = 'namespace ' . self::COMPILED_CLASS_PREFIX. ';';
+        $namespace = 'namespace ' . self::COMPILED_CLASS_PREFIX . ';';
         $path = $this->container['container.base.path'] . "/compile/{$filename}.php";
-        $output = "<?php\n{$namespace}\n".$this->printer->prettyPrint($stmts);
+        $output = "<?php\n{$namespace}\n" . $this->printer->prettyPrint($stmts);
         file_put_contents($path, $output);
-        if(!file_exists($path)) {
+        if (!file_exists($path)) {
             $this->putCompileFile($filename, $stmts);
         }
     }
@@ -153,6 +153,14 @@ class Compiler
     public function newInstance(Container $container)
     {
         return new NewInstance($container);
+    }
+
+
+    public function compiler($reflection = null)
+    {
+        if(!is_null($reflection)) {
+            return $reflection;
+        }
     }
 
     /**

@@ -3,6 +3,7 @@ namespace Ytake\Container;
 
 use Closure;
 use ReflectionClass;
+use ReflectionParameter;
 use Illuminate\Container\BindingResolutionException;
 
 /**
@@ -15,6 +16,9 @@ class Container extends \Illuminate\Container\Container
 {
 
     const CACHING_KEY = "container.bindings";
+
+    /** @var   */
+    protected static $instance;
 
     /** @var  string $base base path */
     protected $base = null;
@@ -30,9 +34,7 @@ class Container extends \Illuminate\Container\Container
      */
     public function __construct(Compiler $compiler = null)
     {
-        $this->container = $this;
         $this->getBasePath();
-
         $this->compiler = (!is_null($compiler)) ? $compiler : null;
     }
 
@@ -49,55 +51,24 @@ class Container extends \Illuminate\Container\Container
             return parent::build($concrete, $parameters);
         }
 
-        var_dump($this->compiler->newInstance(new self));
-exit;
-        $instances = [];
         if ($concrete instanceof Closure) {
             return $concrete($this, $parameters);
         }
-        $reflector = new ReflectionClass($concrete);
-        $autoWired = $this->getAutowired($reflector);
-
-        if (!$reflector->isInstantiable()) {
-            $message = "Target [$concrete] is not instantiable.";
-            throw new BindingResolutionException($message);
-        }
-
-        $constructor = $reflector->getConstructor();
-
-        if (is_null($constructor)) {
-
-            if($autoWired) {
-                $reflectionClass = $this->invokeCompiledClass($autoWired);
-                foreach($autoWired as $depend) {
-                    if(is_object($depend)) {
-                        $instances[] = $depend;
-                    }
-                }
-                return $reflectionClass->newInstanceArgs($instances);
-            }
-            return new $concrete;
-        }
-
-        $reflectionClass = $this->invokeCompiledClass($reflector);
-        $dependencies = $constructor->getParameters();
-
-        $parameters = $this->keyParametersByArgument($dependencies, $parameters);
-        $instances = $this->getDependencies($dependencies, $parameters);
-
-        return $reflectionClass->newInstanceArgs($instances);
+        //var_dump($concrete, $parameters);
+        $reflection = $this->compiler->newInstance($this)->build($concrete, $parameters);
+        return $this->compiler->compiler($reflection);
     }
-
+/*
     /**
      * @param ReflectionClass $reflector
      * @return ReflectionClass
-     */
+     *
     protected function invokeCompiledClass(ReflectionClass $reflector)
     {
         $compiler = new Compiler(new Manager(), $reflector, $this);
         return new ReflectionClass($compiler->builder());
     }
-
+*/
     /**
      * @param ReflectionClass $refactor
      * @return null|ReflectionClass
@@ -163,4 +134,39 @@ exit;
         $this->instance('container.base.path', $this->base);
         return $this;
     }
+
+    public function keyParametersByArgument(array $dependencies, array $parameters)
+    {
+        foreach ($parameters as $key => $value) {
+            if (is_numeric($key)) {
+                unset($parameters[$key]);
+                $parameters[$dependencies[$key]->name] = $value;
+            }
+        }
+        return $parameters;
+    }
+
+    /**
+     * Resolve all of the dependencies from the ReflectionParameters.
+     *
+     * @param  array  $parameters
+     * @param  array  $primitives
+     * @return array
+     */
+    public function getDependencies($parameters, array $primitives = array())
+    {
+        $dependencies = [];
+        foreach ($parameters as $parameter) {
+            $dependency = $parameter->getClass();
+            if (array_key_exists($parameter->name, $primitives)) {
+                $dependencies[] = $primitives[$parameter->name];
+            } elseif (is_null($dependency)) {
+                $dependencies[] = $this->resolveNonClass($parameter);
+            } else {
+                $dependencies[] = $this->resolveClass($parameter);
+            }
+        }
+        return (array) $dependencies;
+    }
+
 }

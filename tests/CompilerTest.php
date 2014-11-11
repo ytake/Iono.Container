@@ -1,4 +1,5 @@
 <?php
+namespace Ytake\_TestContainer;
 
 class CompilerTest extends \PHPUnit_Framework_TestCase
 {
@@ -16,7 +17,13 @@ class CompilerTest extends \PHPUnit_Framework_TestCase
     public function testInstance()
     {
         $container = new \Ytake\Container\Container($this->compiler);
-        $container->make("Hello");
+        // $container->bind("Ytake\_TestContainer\RepositoryInterface", "Ytake\_TestContainer\Repository");
+
+        //$container->make("Ytake\_TestContainer\RepositoryInterface");
+
+        $container->bind("Ytake\_TestContainer\RepositoryInterface", "Ytake\_TestContainer\ConstructRepository");
+        $class = $container->make("Ytake\_TestContainer\RepositoryInterface");
+        var_dump($class->get());
     }
 
 }

@@ -1,4 +1,5 @@
 <?php
+namespace Ytake\_TestContainer;
 
 use Ytake\Container\Annotations\Annotation\Autowired;
 

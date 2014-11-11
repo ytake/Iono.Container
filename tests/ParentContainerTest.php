@@ -1,4 +1,6 @@
 <?php
+namespace Ytake\_TestContainer;
+
 class ParentContainerTest extends \PHPUnit_Framework_TestCase
 {
     /** @var \Illuminate\Container\Container */

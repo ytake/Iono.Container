@@ -1,4 +1,5 @@
 <?php
+namespace Ytake\_TestContainer;
 
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {
@@ -17,28 +18,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     public function testBinder()
     {
-        $this->container->bind("RepositoryInterface", "Repository");
+        $this->container->bind("Ytake\_TestContainer\RepositoryInterface", "Ytake\_TestContainer\Repository");
         $this->container->bind("abc", "stdClass");
-        $this->assertInstanceOf("Repository", $this->container->make("RepositoryInterface"));
+        $this->assertInstanceOf("Ytake\_TestContainer\Repository", $this->container->make("Ytake\_TestContainer\RepositoryInterface"));
     }
-}
-
-interface RepositoryInterface
-{
-    public function get();
-}
-
-class Repository implements RepositoryInterface
-{
-
-    public function __construct(\stdClass $class, $string = "testing")
-    {
-
-    }
-
-    public function get()
-    {
-        return $this;
-    }
-
 }

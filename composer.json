@@ -29,7 +29,15 @@
     "autoload": {
         "psr-4": {
             "Ytake\\Container\\": "src/",
-            "Ytake\\Compiled\\": "resource/compile"
+            "Ytake\\Compiled\\": "resource/compile/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Ytake\\_TestContainer\\": [
+                "tests/",
+                "tests/binding/"
+            ]
         }
     }
 }
