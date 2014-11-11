@@ -9,15 +9,26 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
-class Manager
+class AnnotationManager
 {
 
-    protected $reader = "apc";
+    /** @var string  annotationReader driver */
+    protected $driver = "apc";
 
     /**
-     * @return ApcReader
+     * @param $driver
+     * @return $this
      */
-    public function getApcReader()
+    public function driver($driver = "apc")
+    {
+        $this->driver = $driver;
+        return $this;
+    }
+
+    /**
+ * @return ApcReader
+ */
+    protected function getApcReader()
     {
         return new ApcReader();
     }
@@ -27,7 +38,7 @@ class Manager
      */
     public function reader()
     {
-        $selectedReader = "get" . ucfirst($this->reader) . "Reader";
+        $selectedReader = "get" . ucfirst($this->driver) . "Reader";
         foreach($this->getDirectory(__DIR__ . '/Annotation') as $file) {
             AnnotationRegistry::registerFile($file);
         }

@@ -5,7 +5,8 @@ use ReflectionClass;
 use PhpParser\BuilderFactory;
 use PhpParser\Node\Stmt\TraitUse;
 use PhpParser\PrettyPrinter\Standard;
-use Ytake\Container\Annotations\Manager as AnnotationManager;
+use Doctrine\Common\Annotations\Reader;
+use Ytake\Container\Annotations\NewInstance;
 
 /**
  * Class Compiler
@@ -24,40 +25,22 @@ class Compiler
     /** @var Standard  */
     protected $printer;
 
-    /** @var Container  */
-    protected $container;
-
     /** @var ReflectionClass  */
     protected $reflectionClass;
 
     /** @var array  */
     protected $traits = [];
 
-    /** @var AnnotationManager  */
-    protected $annotation;
-
     /** @var bool  */
     protected $forceCompile = true;
 
     /**
-     * @param BuilderFactory $factory
-     * @param Standard $printer
-     * @param AnnotationManager $annotation
-     * @param ReflectionClass $reflectionClass
-     * @param Container $container
+     * @param Reader $annotation
      */
-    public function __construct(
-        BuilderFactory $factory,
-        Standard $printer,
-        AnnotationManager $annotation,
-        ReflectionClass $reflectionClass,
-        Container $container
-    ) {
-        $this->factory = $factory;
-        $this->printer = $printer;
+    public function __construct(Reader $annotation)
+    {
+        $this->activate();
         $this->annotation = $annotation;
-        $this->container = $container;
-        $this->reflectionClass = $reflectionClass;
     }
 
     /**
@@ -164,6 +147,15 @@ class Compiler
     }
 
     /**
+     * @param Container $container
+     * @return NewInstance
+     */
+    public function newInstance(Container $container)
+    {
+        return new NewInstance($container);
+    }
+
+    /**
      * @return string
      */
     protected function getClassName()
@@ -171,4 +163,13 @@ class Compiler
         return "Compiler" . str_replace("\\", "", $this->reflectionClass->name);
     }
 
+    /**
+     * activate library
+     * @return void
+     */
+    protected function activate()
+    {
+        $this->factory = new BuilderFactory();
+        $this->printer = new Standard();
+    }
 } 

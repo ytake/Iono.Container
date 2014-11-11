@@ -11,12 +11,13 @@ use Doctrine\Common\Annotations\AnnotationReader;
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
-class ApcReader
+class ApcReader implements ReaderInterface
 {
 
     /** @var bool  */
-    protected $debug = true;
+    protected $debug = false;
 
+    /** @var CachedReader  */
     protected $reader;
 
     public function __construct()
@@ -29,7 +30,7 @@ class ApcReader
     }
 
     /**
-     * @return \Doctrine\Common\Annotations\Reader
+     * @return CachedReader
      */
     public function getReader()
     {

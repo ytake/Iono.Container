@@ -3,10 +3,7 @@ namespace Ytake\Container;
 
 use Closure;
 use ReflectionClass;
-use PhpParser\BuilderFactory;
-use PhpParser\PrettyPrinter\Standard;
 use Illuminate\Container\BindingResolutionException;
-use Ytake\Container\Annotations\Manager;
 
 /**
  * Class Container
@@ -22,13 +19,21 @@ class Container extends \Illuminate\Container\Container
     /** @var  string $base base path */
     protected $base = null;
 
-    /** @var Manager  */
-    protected $manager;
+    /** @var null|Compiler */
+    protected $compiler;
 
-    public function __construct()
+    /** @var Container  */
+    protected $container;
+
+    /**
+     * @param Compiler $compiler
+     */
+    public function __construct(Compiler $compiler = null)
     {
-        $this->manager = new Manager();
+        $this->container = $this;
         $this->getBasePath();
+
+        $this->compiler = (!is_null($compiler)) ? $compiler : null;
     }
 
     /**
@@ -40,6 +45,12 @@ class Container extends \Illuminate\Container\Container
      */
     public function build($concrete, $parameters = [])
     {
+        if(is_null($this->compiler)) {
+            return parent::build($concrete, $parameters);
+        }
+
+        var_dump($this->compiler->newInstance(new self));
+exit;
         $instances = [];
         if ($concrete instanceof Closure) {
             return $concrete($this, $parameters);
@@ -83,7 +94,7 @@ class Container extends \Illuminate\Container\Container
      */
     protected function invokeCompiledClass(ReflectionClass $reflector)
     {
-        $compiler = new Compiler(new BuilderFactory(), new Standard(), new Manager(), $reflector, $this);
+        $compiler = new Compiler(new Manager(), $reflector, $this);
         return new ReflectionClass($compiler->builder());
     }
 
@@ -121,14 +132,6 @@ class Container extends \Illuminate\Container\Container
     }
 
     /**
-     * @return Manager
-     */
-    public function getManager()
-    {
-        return $this->manager;
-    }
-
-    /**
      * @return void
      */
     public function getBinder()
@@ -145,8 +148,8 @@ class Container extends \Illuminate\Container\Container
      */
     public function getBasePath()
     {
-        $this->base = (is_null($this->base)) ? dirname(realpath(__DIR__)) . "/resource" : $this->base;
-        $this->instance('container.base.path', $this->base);
+        $this['container.base.path'] =
+            (is_null($this->base)) ? dirname(realpath(__DIR__)) . "/resource" : $this->base;
         return $this->base;
     }
 
