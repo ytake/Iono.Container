@@ -1,17 +1,13 @@
 <?php
-namespace Ytake\Container\Annotations\Annotation;
+namespace Ytake\Container\Annotation\Annotations;
 
 /**
- * Class Scope
  * @Annotation
  * @Target("CLASS")
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
-final class Scope
+class Component
 {
-    /** @var string */
-    public $value;
 
-
-} 
+}

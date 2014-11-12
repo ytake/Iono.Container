@@ -1,5 +1,5 @@
 <?php
-namespace Ytake\Container\Annotations;
+namespace Ytake\Container\Annotation;
 
 use Doctrine\Common\Cache\ApcCache;
 use Doctrine\Common\Annotations\CachedReader;
@@ -7,17 +7,16 @@ use Doctrine\Common\Annotations\AnnotationReader;
 
 /**
  * Class ApcReader
- * @package Ytake\Container\Annotations
+ * @package Ytake\Container\Annotation
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
-class ApcReader implements ReaderInterface
+class ApcReader
 {
 
     /** @var bool  */
     protected $debug = false;
 
-    /** @var CachedReader  */
     protected $reader;
 
     public function __construct()
@@ -30,7 +29,7 @@ class ApcReader implements ReaderInterface
     }
 
     /**
-     * @return CachedReader
+     * @return \Doctrine\Common\Annotations\Reader
      */
     public function getReader()
     {

@@ -1,10 +1,17 @@
 <?php
+/**
+ * under construction
+ */
 $autoLoader = require_once __DIR__ . "/../vendor/autoload.php";
 
-use Doctrine\Common\Annotations\AnnotationRegistry;
 use TokenReflection\Broker;
+use Doctrine\Common\Annotations\AnnotationRegistry;
 
-$container = new \Ytake\Container\Container();
+$manager = new \Ytake\Container\Annotation\AnnotationManager();
+$compiler = new \Ytake\Container\Compiler($manager->driver('apc')->reader());
+$container = new \Ytake\Container\Container(
+    $compiler
+);
 AnnotationRegistry::registerLoader([$autoLoader, 'loadClass']);
 
 $broker = new Broker(new Broker\Backend\Memory());
@@ -21,10 +28,10 @@ foreach($files as $file) {
             require_once $namespace->getFileName();
             foreach($namespace->getClasses() as $class => $value) {
                 $reflectionClass = new \ReflectionClass($class);
-                $annotations = $container->getManager()->reader()->getClassAnnotations($reflectionClass);
+                $annotations = $compiler->getAnnotationReader()->getClassAnnotations($reflectionClass);
                 if(count($annotations)) {
                     foreach ($annotations as $annotation) {
-                        if($annotation instanceof \Ytake\Container\Annotations\Annotation\Component) {
+                        if($annotation instanceof \Ytake\Container\Annotation\Annotations\Component) {
                             $interfaces = $reflectionClass->getInterfaceNames();
                             if(count($interfaces) != 1) {
                                 throw new ErrorException("mismatch");
@@ -39,4 +46,7 @@ foreach($files as $file) {
         }
     }
 }
-file_put_contents($container->getBasePath() . "/scanned.binding.php", serialize($binding));
+
+file_put_contents(
+    $compiler->getCompilePath() . "/scanned.binding.php", serialize($binding)
+);

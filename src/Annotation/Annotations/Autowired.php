@@ -1,13 +1,15 @@
 <?php
-namespace Ytake\Container\Annotations\Annotation;
+namespace Ytake\Container\Annotation\Annotations;
 
 /**
  * @Annotation
- * @Target("CLASS")
+ * @Target("PROPERTY")
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
-final class Component
+class Autowired
 {
 
+    /** @var  string */
+    public $value;
 }
