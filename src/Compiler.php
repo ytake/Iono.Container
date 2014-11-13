@@ -1,11 +1,11 @@
 <?php
 namespace Ytake\Container;
 
-use Doctrine\Common\Annotations\Reader;
 use ReflectionClass;
 use PhpParser\BuilderFactory;
 use PhpParser\Node\Stmt\TraitUse;
 use PhpParser\PrettyPrinter\Standard;
+use Doctrine\Common\Annotations\Reader;
 
 /**
  * Class Compiler
@@ -37,7 +37,7 @@ class Compiler
     protected $path = null;
 
     /** @var bool  */
-    protected $forceCompile = false;
+    protected $force = true;
 
     /**
      * @param Reader $reader
@@ -62,7 +62,7 @@ class Compiler
 
         $className = $this->getClassName($reflectionClass);
 
-        if(!$this->forceCompile) {
+        if(!$this->force) {
             if (class_exists(self::COMPILED_CLASS_PREFIX . "\\{$className}")) {
                 return self::COMPILED_CLASS_PREFIX . "\\" . $className;
             }
@@ -76,11 +76,7 @@ class Compiler
         if ($constructor) {
             $parameters = $reflectionClass->getConstructor()->getParameters();
         }
-
         $construct = $this->factory->method('__construct');
-        // @todo
-        // $construct->addParam($this->factory->param("app")->setTypeHint("\\" . get_class($this->container)));
-
         if($parameters) {
             foreach ($parameters as $c) {
                 if ($c->getClass()) {
@@ -91,15 +87,15 @@ class Compiler
                 }
                 $args[] = new \PhpParser\Node\Arg(new \PhpParser\Node\Expr\Variable($c->name));
             }
-        // construct, parameter無し
-        }else{
-            foreach($reflectionClass as $key => $param) {
-                if($key !== "name") {
-                    $filedInjector["\$this->" . $key] = $key;
-                    $construct->addParam($this->factory->param($key)->setTypeHint("\\" . get_class($param)));
-                }
+        }
+
+        foreach($reflectionClass as $key => $param) {
+            if($key !== "name") {
+                $filedInjector["\$this->" . $key] = $key;
+                $construct->addParam($this->factory->param($key)->setTypeHint("\\" . get_class($param)));
             }
         }
+
         if(count($filedInjector)) {
 
             foreach($filedInjector as $target => $inject) {
@@ -129,8 +125,8 @@ class Compiler
             $node = $node->addStmt(new TraitUse($nodeName));
         }
         $class = $node->getNode();
-        $stmts = [$class];
-        $this->putCompileFile($className, $stmts);
+
+        $this->putCompileFile($className, [$class]);
         if (!class_exists(self::COMPILED_CLASS_PREFIX . "\\{$className}")) {
             require_once $this->path . "/compile/{$className}.php";
         }
@@ -207,5 +203,15 @@ class Compiler
     public function getAnnotationReader()
     {
         return $this->reader;
+    }
+
+    /**
+     * @param bool $force
+     * @return $this
+     */
+    public function setForceCompile($force = true)
+    {
+        $this->force = $force;
+        return $this;
     }
 } 

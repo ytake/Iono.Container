@@ -1,17 +1,16 @@
 <?php
 namespace Ytake\Container\Annotation;
 
-use Doctrine\Common\Cache\ApcCache;
-use Doctrine\Common\Annotations\CachedReader;
+use Doctrine\Common\Annotations\FileCacheReader;
 use Doctrine\Common\Annotations\AnnotationReader;
 
 /**
- * Class ApcReader
+ * Class FileReader
  * @package Ytake\Container\Annotation
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
-class ApcReader extends AbstractReader
+class FileReader extends AbstractReader
 {
 
     /** @var bool  */
@@ -19,11 +18,14 @@ class ApcReader extends AbstractReader
 
     protected $reader;
 
-    public function __construct()
+    /**
+     * @param null $path
+     */
+    public function __construct($path = null)
     {
-        $this->reader = new CachedReader(
+        $this->reader = new FileCacheReader(
             new AnnotationReader(),
-            new ApcCache(),
+            $path,
             $this->debug
         );
     }
