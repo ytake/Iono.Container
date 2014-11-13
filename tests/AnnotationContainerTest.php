@@ -1,7 +1,9 @@
 <?php
 namespace Ytake\_TestContainer;
 
-use Ytake\Container\Annotations\Annotation\Autowired;
+use Ytake\Container\Annotation\AnnotationManager;
+use Ytake\Container\Compiler;
+
 
 class AnnotationContainerTest extends \PHPUnit_Framework_TestCase
 {
@@ -10,7 +12,11 @@ class AnnotationContainerTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->container = new \Ytake\Container\Container();
+        $annotationManager = new AnnotationManager();
+
+        $this->container = new \Ytake\Container\Container(
+            new Compiler($annotationManager->driver("apc")->reader())
+        );
     }
 
     public function testInstance()
@@ -21,25 +27,11 @@ class AnnotationContainerTest extends \PHPUnit_Framework_TestCase
     public function testBinder()
     {
         /** @var TestingClass $class */
-        $class = $this->container->make("TestingClass");
+        $class = $this->container->getBean()->make("Ytake\_TestContainer\TestingClass");
         $reflectionClass = new \ReflectionClass($class);
         $reflectionProperty = $reflectionClass->getProperty("class");
         $reflectionProperty->setAccessible(true);
-        $this->assertInstanceOf("AnnotationRepository", $reflectionProperty->getValue($class));
-        $this->assertInstanceOf("AnnotationRepository", $class->get());
-    }
-}
-
-class TestingClass
-{
-    /**
-     * @var
-     * @Autowired("AnnotationRepositoryInterface")
-     */
-    protected $class;
-
-    public function get()
-    {
-        return $this->class;
+        $this->assertInstanceOf("Ytake\_TestContainer\AnnotationRepository", $reflectionProperty->getValue($class));
+        $this->assertInstanceOf("Ytake\_TestContainer\AnnotationRepository", $class->get());
     }
 }

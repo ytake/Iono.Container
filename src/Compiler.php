@@ -1,12 +1,11 @@
 <?php
 namespace Ytake\Container;
 
+use Doctrine\Common\Annotations\Reader;
 use ReflectionClass;
 use PhpParser\BuilderFactory;
 use PhpParser\Node\Stmt\TraitUse;
 use PhpParser\PrettyPrinter\Standard;
-use Doctrine\Common\Annotations\Reader;
-use Ytake\Container\NewInstance;
 
 /**
  * Class Compiler
@@ -22,59 +21,67 @@ class Compiler
     /** @var BuilderFactory */
     protected $factory;
 
-    /** @var Standard */
+    /** @var Standard  */
     protected $printer;
 
-    /** @var ReflectionClass */
+    /** @var Container  */
+    protected $container;
+
+    /** @var ReflectionClass  */
     protected $reflectionClass;
 
-    /** @var array */
+    /** @var array  */
     protected $traits = [];
 
-    /** @var bool */
-    protected $forceCompile = true;
+    /** @var null  */
+    protected $path = null;
+
+    /** @var bool  */
+    protected $forceCompile = false;
 
     /**
-     * @param Reader $annotation
+     * @param Reader $reader
      */
-    public function __construct(Reader $annotation)
+    public function __construct(Reader $reader)
     {
-        $this->activate();
-        $this->annotation = $annotation;
+        $this->reader = $reader;
+        $this->setCompilePath();
     }
 
     /**
+     * @param ReflectionClass $reflectionClass
      * @return string
      */
-    public function builder()
+    public function builder(ReflectionClass $reflectionClass)
     {
+        $this->activate();
         $args = [];
         $nodeName = [];
         $parameters = [];
         $filedInjector = [];
 
-        $className = $this->getClassName();
+        $className = $this->getClassName($reflectionClass);
 
-        if (!$this->forceCompile) {
+        if(!$this->forceCompile) {
             if (class_exists(self::COMPILED_CLASS_PREFIX . "\\{$className}")) {
                 return self::COMPILED_CLASS_PREFIX . "\\" . $className;
             }
         }
 
-        foreach ($this->reflectionClass->getTraitNames() as $trait) {
+        foreach ($reflectionClass->getTraitNames() as $trait) {
             $this->traits[] = $trait;
         }
 
-        $constructor = $this->reflectionClass->getConstructor();
+        $constructor = $reflectionClass->getConstructor();
         if ($constructor) {
-            $parameters = $this->reflectionClass->getConstructor()->getParameters();
+            $parameters = $reflectionClass->getConstructor()->getParameters();
         }
 
         $construct = $this->factory->method('__construct');
         // @todo
         // $construct->addParam($this->factory->param("app")->setTypeHint("\\" . get_class($this->container)));
 
-        if ($parameters) {
+        if($parameters) {
             foreach ($parameters as $c) {
                 if ($c->getClass()) {
                     $construct->addParam($this->factory->param($c->name)->setTypeHint("\\" . $c->getClass()->name));
@@ -84,18 +91,18 @@ class Compiler
                 }
                 $args[] = new \PhpParser\Node\Arg(new \PhpParser\Node\Expr\Variable($c->name));
             }
-            // construct, parameter無し
-        } else {
-            foreach ($this->reflectionClass as $key => $param) {
-                if ($key !== "name") {
+        // construct, parameter無し
+        }else{
+            foreach($reflectionClass as $key => $param) {
+                if($key !== "name") {
                     $filedInjector["\$this->" . $key] = $key;
                     $construct->addParam($this->factory->param($key)->setTypeHint("\\" . get_class($param)));
                 }
             }
         }
-        if (count($filedInjector)) {
+        if(count($filedInjector)) {
 
-            foreach ($filedInjector as $target => $inject) {
+            foreach($filedInjector as $target => $inject) {
                 $construct->addStmt(new \PhpParser\Node\Name("{$target} = \${$inject};"));
             }
         }
@@ -107,25 +114,25 @@ class Compiler
                 )
             );
         }
-        if (count($this->traits)) {
-            foreach ($this->traits as $trait) {
+        if(count($this->traits)) {
+            foreach($this->traits as $trait) {
                 $nodeName[] = new \PhpParser\Node\Name("\\" . $trait);
             }
         }
 
         $node = $this->factory->class($className)
-            ->extend("\\" . $this->reflectionClass->name)
+            ->extend("\\" . $reflectionClass->name)
             ->makeFinal()
             ->addStmt($construct);
 
-        if (count($nodeName)) {
+        if(count($nodeName)) {
             $node = $node->addStmt(new TraitUse($nodeName));
         }
         $class = $node->getNode();
         $stmts = [$class];
         $this->putCompileFile($className, $stmts);
         if (!class_exists(self::COMPILED_CLASS_PREFIX . "\\{$className}")) {
-            require_once $this->container['container.base.path'] . "/compile/{$className}.php";
+            require_once $this->path . "/compile/{$className}.php";
         }
         return self::COMPILED_CLASS_PREFIX . "\\" . $className;
     }
@@ -137,47 +144,68 @@ class Compiler
      */
     protected function putCompileFile($filename, $stmts)
     {
-        $namespace = 'namespace ' . self::COMPILED_CLASS_PREFIX . ';';
-        $path = $this->container['container.base.path'] . "/compile/{$filename}.php";
-        $output = "<?php\n{$namespace}\n" . $this->printer->prettyPrint($stmts);
+        $namespace = 'namespace ' . self::COMPILED_CLASS_PREFIX. ';';
+        $path = $this->path . "/compile/{$filename}.php";
+        $output = "<?php\n{$namespace}\n".$this->printer->prettyPrint($stmts);
         file_put_contents($path, $output);
-        if (!file_exists($path)) {
+        if(!file_exists($path)) {
             $this->putCompileFile($filename, $stmts);
         }
     }
 
     /**
-     * @param Container $container
-     * @return NewInstance
+     * @param ReflectionClass $reflectionClass
+     * @return string
      */
-    public function newInstance(Container $container)
+    protected function getClassName(ReflectionClass $reflectionClass)
     {
-        return new NewInstance($container);
+        return "Compiler" . str_replace("\\", "", $reflectionClass->name);
     }
 
-
-    public function compiler($reflection = null)
+    /**
+     * @param $path
+     * @return $this
+     */
+    public function compilePath($path)
     {
-        if(!is_null($reflection)) {
-            return $reflection;
-        }
+        $this->path = $path;
+        return $this;
     }
 
     /**
      * @return string
      */
-    protected function getClassName()
+    public function getCompilePath()
     {
-        return "Compiler" . str_replace("\\", "", $this->reflectionClass->name);
+        $this->path = (is_null($this->path)) ? dirname(realpath(__DIR__)) . "/resource" : $this->path;
+        return $this->path;
     }
 
     /**
-     * activate library
-     * @return void
+     * @param $path
+     * @return $this
+     */
+    public function setCompilePath($path = null)
+    {
+        $this->path = (is_null($path)) ? dirname(realpath(__DIR__)) . "/resource" : $path;
+        return $this;
+    }
+
+    /**
+     *
      */
     protected function activate()
     {
-        $this->factory = new BuilderFactory();
-        $this->printer = new Standard();
+        $this->factory = new BuilderFactory;
+        $this->printer = new Standard;
+    }
+
+    /**
+     * annotation getter
+     * @return Reader
+     */
+    public function getAnnotationReader()
+    {
+        return $this->reader;
     }
 } 

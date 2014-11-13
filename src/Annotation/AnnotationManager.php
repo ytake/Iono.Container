@@ -1,34 +1,35 @@
 <?php
-namespace Ytake\Container\Annotations;
+namespace Ytake\Container\Annotation;
 
+use Ytake\Container\Annotation\ApcReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 
 /**
  * Class Manager
- * @package Ytake\Container\Annotations
+ * @package Ytake\Container\Annotation
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
 class AnnotationManager
 {
 
-    /** @var string  annotationReader driver */
-    protected $driver = "apc";
+    protected $reader = "apc";
 
     /**
-     * @param $driver
+     * choose annotation reader ["apc", "file", "simple"]
+     * @param string $reader
      * @return $this
      */
-    public function driver($driver = "apc")
+    public function driver($reader = "apc")
     {
-        $this->driver = $driver;
+        $this->reader = $reader;
         return $this;
     }
 
     /**
- * @return ApcReader
- */
-    protected function getApcReader()
+     * @return ApcReader
+     */
+    public function getApcReader()
     {
         return new ApcReader();
     }
@@ -38,8 +39,8 @@ class AnnotationManager
      */
     public function reader()
     {
-        $selectedReader = "get" . ucfirst($this->driver) . "Reader";
-        foreach($this->getDirectory(__DIR__ . '/Annotation') as $file) {
+        $selectedReader = "get" . ucfirst($this->reader) . "Reader";
+        foreach($this->getDirectory(__DIR__ . '/Annotations') as $file) {
             AnnotationRegistry::registerFile($file);
         }
         return $this->$selectedReader()->getReader();
@@ -54,7 +55,7 @@ class AnnotationManager
         $result = [];
         $scanDir = scandir($dir);
         foreach ($scanDir as $key => $value) {
-            if (!in_array($value, [".",".."])) {
+            if (!in_array($value, [".", ".."])) {
                 if (is_dir($dir . DIRECTORY_SEPARATOR . $value)) {
                     $result[$value] = $this->getDirectory($dir . DIRECTORY_SEPARATOR . $value);
                 } else {
