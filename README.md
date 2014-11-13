@@ -4,7 +4,7 @@ Ytake.Container
 ## About
 illuminate/containerを拡張したコンテナライブラリです  
 [![Scrutinizer Code Quality](http://img.shields.io/scrutinizer/g/ytake/Container.Compiler.svg?style=flat)](https://scrutinizer-ci.com/g/ytake/Container.Compiler/?branch=develop)
-[![Ytake.Container](http://img.shields.io/badge/ytake-container-yellowgreen.svg?style=flat)]
+![Ytake.Container](http://img.shields.io/badge/ytake-container-yellowgreen.svg?style=flat)]
 
 ## 注意
 現在開発中ですが、それっぽく動きます  
