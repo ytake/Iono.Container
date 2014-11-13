@@ -1,11 +1,10 @@
 <?php
 namespace Ytake\Container\Annotation;
 
-use Ytake\Container\Annotation\ApcReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 
 /**
- * Class Manager
+ * Class AnnotationManager
  * @package Ytake\Container\Annotation
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
@@ -13,7 +12,17 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 class AnnotationManager
 {
 
+    /** @var string default annotation driver */
     protected $reader = "apc";
+
+    /** @var null  */
+    protected $path = null;
+
+
+    public function __construct()
+    {
+        $this->path = dirname(dirname(realpath(__DIR__))) . "/resource";
+    }
 
     /**
      * choose annotation reader ["apc", "file", "simple"]
@@ -26,12 +35,26 @@ class AnnotationManager
         return $this;
     }
 
+    public function setFilePath($path = null)
+    {
+        $this->path = (!is_null($path)) ? $path : $this->path;
+        return $this;
+    }
+
     /**
      * @return ApcReader
      */
     public function getApcReader()
     {
         return new ApcReader();
+    }
+
+    /**
+     * @return FileReader
+     */
+    public function getFileReader()
+    {
+        return new FileReader();
     }
 
     /**

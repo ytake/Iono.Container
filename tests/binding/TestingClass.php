@@ -2,7 +2,6 @@
 namespace Ytake\_TestContainer;
 
 use Ytake\Container\Annotation\Annotations\Autowired;
-use Ytake\_TestContainer\AnnotationRepositoryInterface;
 
 class TestingClass
 {
@@ -11,10 +10,20 @@ class TestingClass
      * @var AnnotationRepositoryInterface
      * @Autowired("Ytake\_TestContainer\AnnotationRepositoryInterface")
      */
+    protected $repository;
+
+    protected $property = null;
+
     protected $class;
+
+    public function __construct(\stdClass $class)
+    {
+        $this->class = $class;
+    }
 
     public function get()
     {
-        return $this->class;
+        return $this->repository;
     }
+
 }

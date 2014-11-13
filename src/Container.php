@@ -3,6 +3,7 @@ namespace Ytake\Container;
 
 use Closure;
 use ReflectionClass;
+use ReflectionProperty;
 use Illuminate\Container\BindingResolutionException;
 
 /**
@@ -20,6 +21,9 @@ class Container extends \Illuminate\Container\Container
     /** @var bool  */
     protected $readable = false;
 
+    /** @var bool  */
+    protected $annotated = false;
+
     /**
      * @param Compiler $compiler
      */
@@ -34,7 +38,7 @@ class Container extends \Illuminate\Container\Container
      */
     public function getBean()
     {
-        $file = @file_get_contents($this->compiler->getCompilePath() . "/scanned.binding.php");
+        $file = file_get_contents($this->compiler->getCompilePath() . "/scanned.binding.php");
         if($file) {
             $unSerialized = unserialize($file);
             if(count($unSerialized)) {
@@ -72,13 +76,13 @@ class Container extends \Illuminate\Container\Container
         }
         $constructor = $reflector->getConstructor();
 
-        $autoWired = $this->annotationResolver($reflector);
+        $this->annotated = false;
+        $resolveInstance = $this->propertyResolver($reflector);
 
         if (is_null($constructor)) {
-
-            if($autoWired) {
-                $reflectionClass = $this->invokeCompiledClass($autoWired);
-                foreach($autoWired as $depend) {
+            if($this->annotated) {
+                $reflectionClass = $this->compilation($resolveInstance);
+                foreach($resolveInstance as $depend) {
                     if(is_object($depend)) {
                         $instances[] = $depend;
                     }
@@ -88,45 +92,63 @@ class Container extends \Illuminate\Container\Container
             return new $concrete;
         }
 
-        $reflectionClass = $this->invokeCompiledClass($reflector);
+        if($this->annotated) {
+            $reflectionClass = $this->compilation($resolveInstance);
+            $constructor = $reflectionClass->getConstructor();
+        }
+
         $dependencies = $constructor->getParameters();
-
         $parameters = $this->keyParametersByArgument($dependencies, $parameters);
-        $instances = $this->getDependencies($dependencies, $parameters);
 
-        return $reflectionClass->newInstanceArgs($instances);
+        if($this->annotated) {
+            $instances = $this->getDependencies($dependencies, $parameters);
+            return $reflectionClass->newInstanceArgs($instances);
+        }
+        $instances = $this->getDependencies($dependencies, $parameters);
+        return $reflector->newInstanceArgs($instances);
     }
 
     /**
      * @param ReflectionClass $reflector
      * @return ReflectionClass
      */
-    protected function invokeCompiledClass(ReflectionClass $reflector)
+    protected function compilation(ReflectionClass $reflector)
     {
         $compiler = $this->compiler->builder($reflector);
         return new ReflectionClass($compiler);
     }
 
     /**
-     * @param ReflectionClass $refactor
+     * @param ReflectionClass $reflector
      * @return null|ReflectionClass
      */
-    protected function annotationResolver(ReflectionClass $refactor)
+    protected function propertyResolver(ReflectionClass $reflector)
     {
-        if(count($refactor->getProperties())) {
-            foreach ($refactor->getProperties() as $property) {
-                $propertyAnnotations = $this->compiler
-                    ->getAnnotationReader()->getPropertyAnnotations($property);
 
-                foreach($propertyAnnotations as $annotation) {
-                    if($annotation instanceof \Ytake\Container\Annotation\Annotations\Autowired) {
-                        $property->setAccessible(true);
-                        $property->setValue($refactor, $this->make($annotation->value));
+        if(count($reflector->getProperties())) {
+            /** @var \ReflectionProperty $property */
+            foreach ($reflector->getProperties() as $property) {
+                $propertyAnnotations = $this->compiler->getAnnotationReader()->getPropertyAnnotations($property);
+                if($propertyAnnotations) {
+                    foreach ($propertyAnnotations as $annotation) {
+                        if ($annotation instanceof \Ytake\Container\Annotation\Annotations\Autowired) {
+
+                            $property->setAccessible(true);
+                            $property->setValue($reflector, $this->make($annotation->value));
+                            $this->annotated = true;
+                        }
                     }
                 }
             }
         }
-        return $refactor;
+        return $reflector;
     }
 
+    /**
+     * @return Compiler
+     */
+    public function getCompiler()
+    {
+        return $this->compiler;
+    }
 }
