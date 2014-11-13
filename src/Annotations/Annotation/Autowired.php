@@ -12,4 +12,7 @@ final class Autowired
 
     /** @var  string */
     public $value;
+
+    /** @var bool  */
+    public $required = true;
 }

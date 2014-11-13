@@ -2,14 +2,16 @@
 namespace Ytake\Container\Annotations\Annotation;
 
 /**
+ * Class Scope
  * @Annotation
- * @Target("CLASS")
+ * @Target("PROPERTY")
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
-final class Component
+final class Value
 {
 
-    /** @var string  */
+    /** @var string */
     public $name;
-}
+
+} 

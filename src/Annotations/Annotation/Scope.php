@@ -10,8 +10,8 @@ namespace Ytake\Container\Annotations\Annotation;
  */
 final class Scope
 {
-    /** @var string */
-    public $value;
 
+    /** @var string chose instance "prototype", "singleton"*/
+    public $scope = "prototype";
 
 } 
