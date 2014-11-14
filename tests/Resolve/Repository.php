@@ -1,5 +1,5 @@
 <?php
-namespace Ytake\_TestContainer;
+namespace Ytake\_TestContainer\Resolve;
 
 use Ytake\Container\Annotation\Annotations\Component;
 
@@ -10,6 +10,7 @@ use Ytake\Container\Annotation\Annotations\Component;
  */
 class Repository implements RepositoryInterface
 {
+
     public function get()
     {
         // TODO: Implement get() method.

@@ -77,6 +77,7 @@ class Container extends \Illuminate\Container\Container
         $constructor = $reflector->getConstructor();
 
         $this->annotated = false;
+        /** @todo bottleNeck */
         $resolveInstance = $this->propertyResolver($reflector);
 
         if (is_null($constructor)) {
@@ -93,17 +94,16 @@ class Container extends \Illuminate\Container\Container
         }
 
         if($this->annotated) {
+
             $reflectionClass = $this->compilation($resolveInstance);
             $constructor = $reflectionClass->getConstructor();
-        }
-
-        $dependencies = $constructor->getParameters();
-        $parameters = $this->keyParametersByArgument($dependencies, $parameters);
-
-        if($this->annotated) {
+            $dependencies = $constructor->getParameters();
+            $parameters = $this->keyParametersByArgument($dependencies, $parameters);
             $instances = $this->getDependencies($dependencies, $parameters);
             return $reflectionClass->newInstanceArgs($instances);
         }
+
+        $dependencies = $constructor->getParameters();
         $instances = $this->getDependencies($dependencies, $parameters);
         return $reflector->newInstanceArgs($instances);
     }
@@ -119,29 +119,52 @@ class Container extends \Illuminate\Container\Container
     }
 
     /**
+     * @todo
      * @param ReflectionClass $reflector
      * @return null|ReflectionClass
      */
     protected function propertyResolver(ReflectionClass $reflector)
     {
-
+        $reader = $this->compiler->getAnnotationReader();
         if(count($reflector->getProperties())) {
             /** @var \ReflectionProperty $property */
             foreach ($reflector->getProperties() as $property) {
-                $propertyAnnotations = $this->compiler->getAnnotationReader()->getPropertyAnnotations($property);
+                /** @var array $propertyAnnotations */
+                $propertyAnnotations = $reader->getPropertyAnnotations($property);
                 if($propertyAnnotations) {
-                    foreach ($propertyAnnotations as $annotation) {
-                        if ($annotation instanceof \Ytake\Container\Annotation\Annotations\Autowired) {
-
-                            $property->setAccessible(true);
-                            $property->setValue($reflector, $this->make($annotation->value));
-                            $this->annotated = true;
-                        }
-                    }
+                    $this->annotationParser($propertyAnnotations, $property, $reflector);
                 }
             }
         }
+
         return $reflector;
+    }
+
+    /**
+     * @access private
+     * @param array $propertyAnnotations
+     * @param ReflectionProperty $property
+     * @param ReflectionClass $reflector
+     * @throws BindingResolutionException
+     * @throws \Exception
+     */
+    private function annotationParser(array $propertyAnnotations, ReflectionProperty &$property, ReflectionClass $reflector)
+    {
+        foreach ($propertyAnnotations as $annotation) {
+            if ($annotation instanceof \Ytake\Container\Annotation\Annotations\Autowired) {
+                try {
+                    $instance = $this->make($annotation->value);
+                } catch(BindingResolutionException $e) {
+                    if($annotation->required){
+                        throw $e;
+                    }
+                    $instance = null;
+                }
+                $property->setAccessible(true);
+                $property->setValue($reflector, $instance);
+                $this->annotated = true;
+            }
+        }
     }
 
     /**

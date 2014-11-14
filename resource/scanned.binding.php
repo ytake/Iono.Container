@@ -1,1 +1,1 @@
-a:2:{s:40:"Ytake\_TestContainer\RepositoryInterface";a:1:{s:7:"binding";s:31:"Ytake\_TestContainer\Repository";}s:50:"Ytake\_TestContainer\AnnotationRepositoryInterface";a:1:{s:7:"binding";s:41:"Ytake\_TestContainer\AnnotationRepository";}}
+a:1:{s:48:"Ytake\_TestContainer\Resolve\RepositoryInterface";a:1:{s:7:"binding";s:39:"Ytake\_TestContainer\Resolve\Repository";}}

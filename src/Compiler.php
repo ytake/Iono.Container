@@ -24,20 +24,14 @@ class Compiler
     /** @var Standard  */
     protected $printer;
 
-    /** @var Container  */
-    protected $container;
-
     /** @var ReflectionClass  */
     protected $reflectionClass;
-
-    /** @var array  */
-    protected $traits = [];
 
     /** @var null  */
     protected $path = null;
 
     /** @var bool  */
-    protected $force = true;
+    protected $force = false;
 
     /**
      * @param Reader $reader
@@ -54,28 +48,27 @@ class Compiler
      */
     public function builder(ReflectionClass $reflectionClass)
     {
-        $this->activate();
         $args = [];
+        $traits = [];
         $nodeName = [];
         $parameters = [];
         $filedInjector = [];
 
         $className = $this->getClassName($reflectionClass);
-
         if(!$this->force) {
             if (class_exists(self::COMPILED_CLASS_PREFIX . "\\{$className}")) {
                 return self::COMPILED_CLASS_PREFIX . "\\" . $className;
             }
         }
-
-        foreach ($reflectionClass->getTraitNames() as $trait) {
-            $this->traits[] = $trait;
-        }
-
+        /** @var \ReflectionMethod $constructor */
         $constructor = $reflectionClass->getConstructor();
         if ($constructor) {
             $parameters = $reflectionClass->getConstructor()->getParameters();
         }
+
+        /** activate parser / printer */
+        $this->activate();
+
         $construct = $this->factory->method('__construct');
         if($parameters) {
             foreach ($parameters as $c) {
@@ -92,12 +85,13 @@ class Compiler
         foreach($reflectionClass as $key => $param) {
             if($key !== "name") {
                 $filedInjector["\$this->" . $key] = $key;
-                $construct->addParam($this->factory->param($key)->setTypeHint("\\" . get_class($param)));
+                $construct->addParam(
+                    $this->factory->param($key)->setTypeHint("\\" . get_class($param))
+                );
             }
         }
 
         if(count($filedInjector)) {
-
             foreach($filedInjector as $target => $inject) {
                 $construct->addStmt(new \PhpParser\Node\Name("{$target} = \${$inject};"));
             }
@@ -110,8 +104,11 @@ class Compiler
                 )
             );
         }
-        if(count($this->traits)) {
-            foreach($this->traits as $trait) {
+        foreach ($reflectionClass->getTraitNames() as $trait) {
+            $traits[] = $trait;
+        }
+        if(count($traits)) {
+            foreach($traits as $trait) {
                 $nodeName[] = new \PhpParser\Node\Name("\\" . $trait);
             }
         }

@@ -18,6 +18,7 @@ class CompilerTest extends \PHPUnit_Framework_TestCase
 
     public function testInstance()
     {
+
         $this->assertInstanceOf("Ytake\Container\Annotation\AnnotationManager", $this->annotationReader);
         $this->assertInstanceOf("Ytake\Container\Compiler", $this->compiler);
     }

@@ -16,7 +16,7 @@ $container = new \Ytake\Container\Container(
 AnnotationRegistry::registerLoader([$autoLoader, 'loadClass']);
 
 $broker = new Broker(new Broker\Backend\Memory());
-$broker->processDirectory(__DIR__ . "/../tests/binding");
+$broker->processDirectory(__DIR__ . "/../tests/Resolve");
 $files = $broker->getFiles();
 
 $binding = [];

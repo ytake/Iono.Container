@@ -24,7 +24,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "4.*",
-        "mockery/mockery": "0.*"
+        "mockery/mockery": "0.*",
+        "facebook/xhprof": "dev-master"
     },
     "autoload": {
         "psr-4": {
