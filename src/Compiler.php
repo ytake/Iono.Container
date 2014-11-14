@@ -42,11 +42,8 @@ class Compiler
         $this->setCompilePath();
     }
 
-    /**
-     * @param ReflectionClass $reflectionClass
-     * @return string
-     */
-    public function builder(ReflectionClass $reflectionClass)
+
+    public function builder(array $array)
     {
         $args = [];
         $traits = [];
@@ -54,81 +51,86 @@ class Compiler
         $parameters = [];
         $filedInjector = [];
 
-        $className = $this->getClassName($reflectionClass);
-        if(!$this->force) {
-            if (class_exists(self::COMPILED_CLASS_PREFIX . "\\{$className}")) {
-                return self::COMPILED_CLASS_PREFIX . "\\" . $className;
-            }
-        }
+        /** @var array dependencies */
         /** @var \ReflectionMethod $constructor */
-        $constructor = $reflectionClass->getConstructor();
-        if ($constructor) {
-            $parameters = $reflectionClass->getConstructor()->getParameters();
-        }
 
-        /** activate parser / printer */
-        $this->activate();
+        foreach($array as $class => $properties) {
+            $reflectionClass = new ReflectionClass($class);
+            $className = $this->getClassName($reflectionClass);
 
-        $construct = $this->factory->method('__construct');
-        if($parameters) {
-            foreach ($parameters as $c) {
-                if ($c->getClass()) {
-                    $construct->addParam($this->factory->param($c->name)->setTypeHint("\\" . $c->getClass()->name));
+            if(!$this->force) {
+                if(file_exists($this->path . "/compile/{$className}.php")) {
+                    require_once $this->path . "/compile/{$className}.php";
+                    return self::COMPILED_CLASS_PREFIX . "\\" . $className;
                 }
-                if ($c->isDefaultValueAvailable()) {
-                    $construct->addParam($this->factory->param($c->name)->setDefault($c->getDefaultValue()));
-                }
-                $args[] = new \PhpParser\Node\Arg(new \PhpParser\Node\Expr\Variable($c->name));
             }
-        }
+            $constructor = $reflectionClass->getConstructor();
+            if ($constructor) {
+                $parameters = $reflectionClass->getConstructor()->getParameters();
+            }
 
-        foreach($reflectionClass as $key => $param) {
-            if($key !== "name") {
-                $filedInjector["\$this->" . $key] = $key;
-                $construct->addParam(
-                    $this->factory->param($key)->setTypeHint("\\" . get_class($param))
+            $this->activate();
+
+            $construct = $this->factory->method('__construct');
+
+            if($parameters) {
+                foreach ($parameters as $c) {
+                    if ($c->getClass()) {
+                        $construct->addParam($this->factory->param($c->name)->setTypeHint("\\" . $c->getClass()->name));
+                    }
+                    if ($c->isDefaultValueAvailable()) {
+                        $construct->addParam($this->factory->param($c->name)->setDefault($c->getDefaultValue()));
+                    }
+                    $args[] = new \PhpParser\Node\Arg(new \PhpParser\Node\Expr\Variable($c->name));
+                }
+            }
+
+            foreach($properties as $key => $param) {
+
+                    $filedInjector["\$this->" . $key] = $key;
+                    $construct->addParam(
+                        $this->factory->param($key)->setTypeHint("\\" . $param)
+                    );
+
+            }
+
+            if(count($filedInjector)) {
+                foreach($filedInjector as $target => $inject) {
+                    $construct->addStmt(new \PhpParser\Node\Name("{$target} = \${$inject};"));
+                }
+            }
+            if ($constructor) {
+                $construct->addStmt(
+                    new \PhpParser\Node\Expr\FuncCall(
+                        new \PhpParser\Node\Name('parent::__construct'),
+                        $args
+                    )
                 );
             }
-        }
-
-        if(count($filedInjector)) {
-            foreach($filedInjector as $target => $inject) {
-                $construct->addStmt(new \PhpParser\Node\Name("{$target} = \${$inject};"));
+            foreach ($reflectionClass->getTraitNames() as $trait) {
+                $traits[] = $trait;
             }
-        }
-        if ($constructor) {
-            $construct->addStmt(
-                new \PhpParser\Node\Expr\FuncCall(
-                    new \PhpParser\Node\Name('parent::__construct'),
-                    $args
-                )
-            );
-        }
-        foreach ($reflectionClass->getTraitNames() as $trait) {
-            $traits[] = $trait;
-        }
-        if(count($traits)) {
-            foreach($traits as $trait) {
-                $nodeName[] = new \PhpParser\Node\Name("\\" . $trait);
+            if(count($traits)) {
+                foreach($traits as $trait) {
+                    $nodeName[] = new \PhpParser\Node\Name("\\" . $trait);
+                }
             }
-        }
 
-        $node = $this->factory->class($className)
-            ->extend("\\" . $reflectionClass->name)
-            ->makeFinal()
-            ->addStmt($construct);
+            $node = $this->factory->class($className)
+                ->extend("\\" . $reflectionClass->name)
+                ->makeFinal()
+                ->addStmt($construct);
+            if(count($nodeName)) {
+                $node = $node->addStmt(new TraitUse($nodeName));
+            }
+            $stmts = $node->getNode();
 
-        if(count($nodeName)) {
-            $node = $node->addStmt(new TraitUse($nodeName));
-        }
-        $class = $node->getNode();
-
-        $this->putCompileFile($className, [$class]);
-        if (!class_exists(self::COMPILED_CLASS_PREFIX . "\\{$className}")) {
+            $this->putCompileFile($className, [$stmts]);
             require_once $this->path . "/compile/{$className}.php";
+            return self::COMPILED_CLASS_PREFIX . "\\" . $className;
         }
-        return self::COMPILED_CLASS_PREFIX . "\\" . $className;
     }
+
 
     /**
      * @param $filename
@@ -144,6 +146,7 @@ class Compiler
         if(!file_exists($path)) {
             $this->putCompileFile($filename, $stmts);
         }
+
     }
 
     /**

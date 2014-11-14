@@ -24,6 +24,14 @@ class Container extends \Illuminate\Container\Container
     /** @var bool  */
     protected $annotated = false;
 
+
+    protected $dependencies = [];
+
+    protected $a = [];
+
+    /** @var \Doctrine\Common\Annotations\Reader  */
+    protected $reader;
+
     /**
      * @param Compiler $compiler
      */
@@ -38,16 +46,8 @@ class Container extends \Illuminate\Container\Container
      */
     public function getBean()
     {
-        $file = file_get_contents($this->compiler->getCompilePath() . "/scanned.binding.php");
-        if($file) {
-            $unSerialized = unserialize($file);
-            if(count($unSerialized)) {
-                foreach ($unSerialized as $key => $bind) {
-                    $this->bind($key, $bind['binding']);
-                }
-                $this->readable = true;
-            }
-        }
+        require_once $this->compiler->getCompilePath() . "/scanned.binding.php";
+        $this->reader = $this->compiler->getAnnotationReader();
         return $this;
     }
 
@@ -64,7 +64,7 @@ class Container extends \Illuminate\Container\Container
         if(is_null($this->compiler)) {
             return parent::build($concrete, $parameters);
         }
-        $instances = [];
+
         if ($concrete instanceof Closure) {
             return $concrete($this, $parameters);
         }
@@ -78,91 +78,63 @@ class Container extends \Illuminate\Container\Container
 
         $this->annotated = false;
         /** @todo bottleNeck */
-        $resolveInstance = $this->propertyResolver($reflector);
+        $this->propertyResolver($reflector, $reflector->getName());
 
         if (is_null($constructor)) {
             if($this->annotated) {
-                $reflectionClass = $this->compilation($resolveInstance);
-                foreach($resolveInstance as $depend) {
-                    if(is_object($depend)) {
-                        $instances[] = $depend;
-                    }
-                }
-                return $reflectionClass->newInstanceArgs($instances);
+                return $this->newInstance($parameters);
             }
             return new $concrete;
         }
 
         if($this->annotated) {
-
-            $reflectionClass = $this->compilation($resolveInstance);
-            $constructor = $reflectionClass->getConstructor();
-            $dependencies = $constructor->getParameters();
-            $parameters = $this->keyParametersByArgument($dependencies, $parameters);
-            $instances = $this->getDependencies($dependencies, $parameters);
-            return $reflectionClass->newInstanceArgs($instances);
+            return $this->newInstance($parameters);
         }
 
         $dependencies = $constructor->getParameters();
         $instances = $this->getDependencies($dependencies, $parameters);
+
         return $reflector->newInstanceArgs($instances);
     }
 
     /**
-     * @param ReflectionClass $reflector
+     * @param array $array
      * @return ReflectionClass
      */
-    protected function compilation(ReflectionClass $reflector)
+    protected function compilation(array $array)
     {
-        $compiler = $this->compiler->builder($reflector);
-        return new ReflectionClass($compiler);
+        return new ReflectionClass($this->compiler->builder($array));
+    }
+
+    /**
+     * @param array $parameters
+     * @return object
+     */
+    protected function newInstance(array $parameters)
+    {
+        $reflectionClass = $this->compilation($this->dependencies);
+        $constructor = $reflectionClass->getConstructor();
+        $dependencies = $constructor->getParameters();
+        $parameters = $this->keyParametersByArgument($dependencies, $parameters);
+        $instances = $this->getDependencies($dependencies, $parameters);
+        return $reflectionClass->newInstanceArgs($instances);
     }
 
     /**
      * @todo
      * @param ReflectionClass $reflector
-     * @return null|ReflectionClass
+     * @return void
      */
-    protected function propertyResolver(ReflectionClass $reflector)
+    protected function propertyResolver(ReflectionClass $reflector, $name)
     {
-        $reader = $this->compiler->getAnnotationReader();
         if(count($reflector->getProperties())) {
-            /** @var \ReflectionProperty $property */
             foreach ($reflector->getProperties() as $property) {
-                /** @var array $propertyAnnotations */
-                $propertyAnnotations = $reader->getPropertyAnnotations($property);
-                if($propertyAnnotations) {
-                    $this->annotationParser($propertyAnnotations, $property, $reflector);
+                /** @var \Ytake\Container\Annotation\Annotations\Autowired $autoWired */
+                $autoWired = $this->reader->getPropertyAnnotation($property, "\Ytake\Container\Annotation\Annotations\Autowired");
+                if($autoWired) {
+                    $this->dependencies[$name][$property->getName()] = $autoWired->resolver();
+                    $this->annotated = true;
                 }
-            }
-        }
-
-        return $reflector;
-    }
-
-    /**
-     * @access private
-     * @param array $propertyAnnotations
-     * @param ReflectionProperty $property
-     * @param ReflectionClass $reflector
-     * @throws BindingResolutionException
-     * @throws \Exception
-     */
-    private function annotationParser(array $propertyAnnotations, ReflectionProperty &$property, ReflectionClass $reflector)
-    {
-        foreach ($propertyAnnotations as $annotation) {
-            if ($annotation instanceof \Ytake\Container\Annotation\Annotations\Autowired) {
-                try {
-                    $instance = $this->make($annotation->value);
-                } catch(BindingResolutionException $e) {
-                    if($annotation->required){
-                        throw $e;
-                    }
-                    $instance = null;
-                }
-                $property->setAccessible(true);
-                $property->setValue($reflector, $instance);
-                $this->annotated = true;
             }
         }
     }

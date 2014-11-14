@@ -7,12 +7,28 @@ namespace Ytake\Container\Annotation\Annotations;
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
-class Autowired
+class Autowired extends Annotation
 {
 
     /** @var  string */
     public $value;
 
     /** @var bool  */
-    public $required = true;
+    public $required = false;
+
+    /**
+     * @return null|string
+     * @throws \ErrorException
+     */
+    public function resolver()
+    {
+        if($this->required) {
+            if(!($this->value) ? $this->value : null) {
+                throw new \ErrorException();
+            }
+            return $this->value;
+        }
+        return ($this->value) ? $this->value : null;
+
+    }
 }
