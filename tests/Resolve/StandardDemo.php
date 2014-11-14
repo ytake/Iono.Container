@@ -1,9 +1,9 @@
 <?php
-namespace Ytake\_TestContainer;
+namespace Ytake\_TestContainer\Resolve;
 
 /**
  * Class StandardDemo
- * @package Ytake\_TestContainer
+ * @package Ytake\_TestContainer\Resolve
  */
 class StandardDemo
 {

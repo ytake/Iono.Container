@@ -1,1 +1,2 @@
-a:2:{s:40:"Ytake\_TestContainer\RepositoryInterface";a:1:{s:7:"binding";s:31:"Ytake\_TestContainer\Repository";}s:50:"Ytake\_TestContainer\AnnotationRepositoryInterface";a:1:{s:7:"binding";s:41:"Ytake\_TestContainer\AnnotationRepository";}}
+<?php $this->bind("not", "Ytake\_TestContainer\Resolve\NotImplementRepository");
+$this->bind("Ytake\_TestContainer\Resolve\RepositoryInterface", "Ytake\_TestContainer\Resolve\Repository");

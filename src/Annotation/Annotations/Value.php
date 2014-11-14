@@ -1,6 +1,8 @@
 <?php
 namespace Ytake\Container\Annotations\Annotation;
 
+use Ytake\Container\Annotation\Annotations\Annotation;
+
 /**
  * Class Scope
  * @Annotation
@@ -8,7 +10,7 @@ namespace Ytake\Container\Annotations\Annotation;
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
-final class Value
+final class Value extends Annotation
 {
 
     /** @var string */

@@ -1,6 +1,10 @@
 <?php
 namespace Ytake\Container\Annotation;
 
+use Doctrine\Common\Cache\ApcCache;
+use Doctrine\Common\Annotations\CachedReader;
+use Doctrine\Common\Annotations\FileCacheReader;
+use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 
 /**
@@ -13,11 +17,13 @@ class AnnotationManager
 {
 
     /** @var string default annotation driver */
-    protected $reader = "apc";
+    protected $driver = "simple";
 
     /** @var null  */
     protected $path = null;
 
+    /** @var bool  */
+    protected $debug = false;
 
     public function __construct()
     {
@@ -26,15 +32,19 @@ class AnnotationManager
 
     /**
      * choose annotation reader ["apc", "file", "simple"]
-     * @param string $reader
+     * @param string $driver
      * @return $this
      */
-    public function driver($reader = "apc")
+    public function driver($driver = "simple")
     {
-        $this->reader = $reader;
+        $this->driver = $driver;
         return $this;
     }
 
+    /**
+     * @param null $path
+     * @return $this
+     */
     public function setFilePath($path = null)
     {
         $this->path = (!is_null($path)) ? $path : $this->path;
@@ -42,19 +52,27 @@ class AnnotationManager
     }
 
     /**
-     * @return ApcReader
+     * @return CachedReader
      */
-    public function getApcReader()
+    protected function getApcReader()
     {
-        return new ApcReader();
+        return new CachedReader(new AnnotationReader(), new ApcCache(), $this->debug);
     }
 
     /**
-     * @return FileReader
+     * @return FileCacheReader
      */
-    public function getFileReader()
+    protected function getFileReader()
     {
-        return new FileReader();
+        return new FileCacheReader(new AnnotationReader(), $this->path, $this->debug);
+    }
+
+    /**
+     * @return AnnotationReader
+     */
+    protected function getSimpleReader()
+    {
+        return new AnnotationReader;
     }
 
     /**
@@ -62,30 +80,16 @@ class AnnotationManager
      */
     public function reader()
     {
-        $selectedReader = "get" . ucfirst($this->reader) . "Reader";
-        foreach($this->getDirectory(__DIR__ . '/Annotations') as $file) {
-            AnnotationRegistry::registerFile($file);
-        }
-        return $this->$selectedReader()->getReader();
+        $selectedReader = "get" . ucfirst($this->driver) . "Reader";
+        AnnotationRegistry::registerLoader('class_exists');
+        return $this->$selectedReader();
     }
 
     /**
-     * @param $dir
-     * @return array
+     * @return string
      */
-    protected function getDirectory($dir)
+    public function getDriver()
     {
-        $result = [];
-        $scanDir = scandir($dir);
-        foreach ($scanDir as $key => $value) {
-            if (!in_array($value, [".", ".."])) {
-                if (is_dir($dir . DIRECTORY_SEPARATOR . $value)) {
-                    $result[$value] = $this->getDirectory($dir . DIRECTORY_SEPARATOR . $value);
-                } else {
-                    $result[] = $dir . DIRECTORY_SEPARATOR . $value;
-                }
-            }
-        }
-        return $result;
+        return $this->driver;
     }
 }

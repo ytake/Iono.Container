@@ -1,5 +1,5 @@
 <?php
-namespace Ytake\_TestContainer;
+namespace Ytake\_TestContainer\Resolve;
 
 use Ytake\Container\Annotation\Annotations\Autowired;
 
@@ -7,8 +7,8 @@ class TestingClass
 {
 
     /**
-     * @var AnnotationRepositoryInterface
-     * @Autowired("Ytake\_TestContainer\AnnotationRepositoryInterface")
+     * @var \Ytake\_TestContainer\Resolve\RepositoryInterface
+     * @Autowired("Ytake\_TestContainer\Resolve\RepositoryInterface")
      */
     protected $repository;
 

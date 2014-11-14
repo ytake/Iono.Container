@@ -24,6 +24,14 @@ class Container extends \Illuminate\Container\Container
     /** @var bool  */
     protected $annotated = false;
 
+
+    protected $dependencies = [];
+
+    protected $a = [];
+
+    /** @var \Doctrine\Common\Annotations\Reader  */
+    protected $reader;
+
     /**
      * @param Compiler $compiler
      */
@@ -38,16 +46,8 @@ class Container extends \Illuminate\Container\Container
      */
     public function getBean()
     {
-        $file = file_get_contents($this->compiler->getCompilePath() . "/scanned.binding.php");
-        if($file) {
-            $unSerialized = unserialize($file);
-            if(count($unSerialized)) {
-                foreach ($unSerialized as $key => $bind) {
-                    $this->bind($key, $bind['binding']);
-                }
-                $this->readable = true;
-            }
-        }
+        require_once $this->compiler->getCompilePath() . "/scanned.binding.php";
+        $this->reader = $this->compiler->getAnnotationReader();
         return $this;
     }
 
@@ -64,7 +64,7 @@ class Container extends \Illuminate\Container\Container
         if(is_null($this->compiler)) {
             return parent::build($concrete, $parameters);
         }
-        $instances = [];
+
         if ($concrete instanceof Closure) {
             return $concrete($this, $parameters);
         }
@@ -77,71 +77,66 @@ class Container extends \Illuminate\Container\Container
         $constructor = $reflector->getConstructor();
 
         $this->annotated = false;
-        $resolveInstance = $this->propertyResolver($reflector);
+        /** @todo bottleNeck */
+        $this->propertyResolver($reflector, $reflector->getName());
 
         if (is_null($constructor)) {
             if($this->annotated) {
-                $reflectionClass = $this->compilation($resolveInstance);
-                foreach($resolveInstance as $depend) {
-                    if(is_object($depend)) {
-                        $instances[] = $depend;
-                    }
-                }
-                return $reflectionClass->newInstanceArgs($instances);
+                return $this->newInstance($parameters);
             }
             return new $concrete;
         }
 
         if($this->annotated) {
-            $reflectionClass = $this->compilation($resolveInstance);
-            $constructor = $reflectionClass->getConstructor();
+            return $this->newInstance($parameters);
         }
 
         $dependencies = $constructor->getParameters();
-        $parameters = $this->keyParametersByArgument($dependencies, $parameters);
-
-        if($this->annotated) {
-            $instances = $this->getDependencies($dependencies, $parameters);
-            return $reflectionClass->newInstanceArgs($instances);
-        }
         $instances = $this->getDependencies($dependencies, $parameters);
+
         return $reflector->newInstanceArgs($instances);
     }
 
     /**
-     * @param ReflectionClass $reflector
+     * @param array $array
      * @return ReflectionClass
      */
-    protected function compilation(ReflectionClass $reflector)
+    protected function compilation(array $array)
     {
-        $compiler = $this->compiler->builder($reflector);
-        return new ReflectionClass($compiler);
+        return new ReflectionClass($this->compiler->builder($array));
     }
 
     /**
-     * @param ReflectionClass $reflector
-     * @return null|ReflectionClass
+     * @param array $parameters
+     * @return object
      */
-    protected function propertyResolver(ReflectionClass $reflector)
+    protected function newInstance(array $parameters)
     {
+        $reflectionClass = $this->compilation($this->dependencies);
+        $constructor = $reflectionClass->getConstructor();
+        $dependencies = $constructor->getParameters();
+        $parameters = $this->keyParametersByArgument($dependencies, $parameters);
+        $instances = $this->getDependencies($dependencies, $parameters);
+        return $reflectionClass->newInstanceArgs($instances);
+    }
 
+    /**
+     * @todo
+     * @param ReflectionClass $reflector
+     * @return void
+     */
+    protected function propertyResolver(ReflectionClass $reflector, $name)
+    {
         if(count($reflector->getProperties())) {
-            /** @var \ReflectionProperty $property */
             foreach ($reflector->getProperties() as $property) {
-                $propertyAnnotations = $this->compiler->getAnnotationReader()->getPropertyAnnotations($property);
-                if($propertyAnnotations) {
-                    foreach ($propertyAnnotations as $annotation) {
-                        if ($annotation instanceof \Ytake\Container\Annotation\Annotations\Autowired) {
-
-                            $property->setAccessible(true);
-                            $property->setValue($reflector, $this->make($annotation->value));
-                            $this->annotated = true;
-                        }
-                    }
+                /** @var \Ytake\Container\Annotation\Annotations\Autowired $autoWired */
+                $autoWired = $this->reader->getPropertyAnnotation($property, "\Ytake\Container\Annotation\Annotations\Autowired");
+                if($autoWired) {
+                    $this->dependencies[$name][$property->getName()] = $autoWired->resolver();
+                    $this->annotated = true;
                 }
             }
         }
-        return $reflector;
     }
 
     /**

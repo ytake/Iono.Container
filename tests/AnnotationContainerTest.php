@@ -29,14 +29,14 @@ class AnnotationContainerTest extends \PHPUnit_Framework_TestCase
     public function testAutowired()
     {
         /** @var  $class */
-        $class = $this->container->getBean()->make("Ytake\_TestContainer\TestingClass");
-
+        $class = $this->container->getBean()->make("Ytake\_TestContainer\Resolve\TestingClass");
 
         $reflectionClass = new \ReflectionClass($class);
+        $this->assertInstanceOf("Ytake\_TestContainer\Resolve\TestingClass", $class);
         $reflectionProperty = $reflectionClass->getProperty("repository");
         $reflectionProperty->setAccessible(true);
-        $this->assertInstanceOf("Ytake\_TestContainer\AnnotationRepository", $reflectionProperty->getValue($class));
-        $this->assertInstanceOf("Ytake\_TestContainer\AnnotationRepository", $class->get());
+        $this->assertInstanceOf("Ytake\_TestContainer\Resolve\Repository", $reflectionProperty->getValue($class));
+        $this->assertInstanceOf("Ytake\_TestContainer\Resolve\Repository", $class->get());
 
         $reflectionProperty = $reflectionClass->getProperty("class");
         $reflectionProperty->setAccessible(true);
