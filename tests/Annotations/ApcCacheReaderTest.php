@@ -1,26 +1,36 @@
 <?php
 namespace Ytake\_TestContainer\Annotations;
 
-use Ytake\Container\Annotation\ApcReader;
-use Ytake\Container\Annotation\FileReader;
+use Ytake\Container\Annotation\AnnotationManager;
 
-class FileCacheReaderTest extends \PHPUnit_Framework_TestCase
+class ApcCacheReaderTest extends \PHPUnit_Framework_TestCase
 {
-    /** @var FileReader  */
+    /** @var   */
     protected $reader;
-
+    /** @var  AnnotationManager */
+    protected $manager;
     public function setUp()
     {
-        $this->reader = new ApcReader();
+        $this->manager = new AnnotationManager();
     }
 
     public function testInstance()
     {
-        $this->assertInstanceOf("Ytake\Container\Annotation\ApcReader", $this->reader);
+        $this->assertInstanceOf("Ytake\Container\Annotation\AnnotationManager", $this->manager);
     }
 
-    public function testGetter()
+    public function testApcCache()
     {
-        $this->assertInstanceOf("Doctrine\Common\Annotations\CachedReader", $this->reader->getReader());
+        $this->assertInstanceOf("Doctrine\Common\Annotations\CachedReader", $this->manager->driver('apc')->reader());
+    }
+
+    public function testFileCache()
+    {
+        $this->assertInstanceOf("Doctrine\Common\Annotations\FileCacheReader", $this->manager->driver('file')->reader());
+    }
+
+    public function testSimpleReader()
+    {
+        $this->assertInstanceOf("Doctrine\Common\Annotations\AnnotationReader", $this->manager->driver()->reader());
     }
 } 

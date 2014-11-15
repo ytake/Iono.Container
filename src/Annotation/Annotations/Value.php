@@ -1,7 +1,5 @@
 <?php
-namespace Ytake\Container\Annotations\Annotation;
-
-use Ytake\Container\Annotation\Annotations\Annotation;
+namespace Ytake\Container\Annotation\Annotations;
 
 /**
  * Class Scope
@@ -14,6 +12,6 @@ final class Value extends Annotation
 {
 
     /** @var string */
-    public $name;
+    public $value;
 
 } 

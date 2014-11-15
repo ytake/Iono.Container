@@ -3,8 +3,10 @@ namespace Ytake\Container;
 
 use Closure;
 use ReflectionClass;
-use ReflectionProperty;
+use Ytake\Container\Annotation\Finder;
+use Ytake\Container\Annotation\Resolver;
 use Illuminate\Container\BindingResolutionException;
+
 
 /**
  * Class Container
@@ -24,18 +26,24 @@ class Container extends \Illuminate\Container\Container
     /** @var bool  */
     protected $annotated = false;
 
-
+    /** @var array  */
     protected $dependencies = [];
-
-    protected $a = [];
 
     /** @var \Doctrine\Common\Annotations\Reader  */
     protected $reader;
 
+    /** @var Finder  */
+    protected $finder;
+
+    /** @var array  */
+    protected $relations = [];
+
+    const ANNOTATION_SUFFIX = '\\Ytake\\Container\\Annotation\\Annotations\\';
+
     /**
-     * @param Compiler $compiler
+     * @param CompilerInterface $compiler
      */
-    public function __construct(Compiler $compiler = null)
+    public function __construct(CompilerInterface $compiler = null)
     {
         $this->compiler = $compiler;
     }
@@ -44,10 +52,12 @@ class Container extends \Illuminate\Container\Container
      * get component annotation scanned files
      * @return $this
      */
-    public function getBean()
+    public function setContainer()
     {
-        require_once $this->compiler->getCompilePath() . "/scanned.binding.php";
+        require_once $this->compiler->getCompiledFile();
         $this->reader = $this->compiler->getAnnotationReader();
+        $this->resolver = new Resolver;
+        $this->finder = new Finder($this->resolver);
         return $this;
     }
 
@@ -60,13 +70,12 @@ class Container extends \Illuminate\Container\Container
      */
     public function build($concrete, $parameters = [])
     {
+        if ($concrete instanceof Closure) {
+            return $concrete($this, $parameters);
+        }
         // to parent
         if(is_null($this->compiler)) {
             return parent::build($concrete, $parameters);
-        }
-
-        if ($concrete instanceof Closure) {
-            return $concrete($this, $parameters);
         }
         $reflector = new ReflectionClass($concrete);
 
@@ -77,8 +86,7 @@ class Container extends \Illuminate\Container\Container
         $constructor = $reflector->getConstructor();
 
         $this->annotated = false;
-        /** @todo bottleNeck */
-        $this->propertyResolver($reflector, $reflector->getName());
+        $this->propertyResolver($reflector);
 
         if (is_null($constructor)) {
             if($this->annotated) {
@@ -98,21 +106,12 @@ class Container extends \Illuminate\Container\Container
     }
 
     /**
-     * @param array $array
-     * @return ReflectionClass
-     */
-    protected function compilation(array $array)
-    {
-        return new ReflectionClass($this->compiler->builder($array));
-    }
-
-    /**
      * @param array $parameters
      * @return object
      */
     protected function newInstance(array $parameters)
     {
-        $reflectionClass = $this->compilation($this->dependencies);
+        $reflectionClass = $this->compiler->getCompilation($this->dependencies);
         $constructor = $reflectionClass->getConstructor();
         $dependencies = $constructor->getParameters();
         $parameters = $this->keyParametersByArgument($dependencies, $parameters);
@@ -121,29 +120,42 @@ class Container extends \Illuminate\Container\Container
     }
 
     /**
-     * @todo
      * @param ReflectionClass $reflector
      * @return void
      */
-    protected function propertyResolver(ReflectionClass $reflector, $name)
+    protected function propertyResolver(ReflectionClass $reflector)
     {
-        if(count($reflector->getProperties())) {
-            foreach ($reflector->getProperties() as $property) {
-                /** @var \Ytake\Container\Annotation\Annotations\Autowired $autoWired */
-                $autoWired = $this->reader->getPropertyAnnotation($property, "\Ytake\Container\Annotation\Annotations\Autowired");
-                if($autoWired) {
-                    $this->dependencies[$name][$property->getName()] = $autoWired->resolver();
-                    $this->annotated = true;
+        $name = $reflector->getName();
+        $cache = md5($name);
+        $file = $this->compiler->getCompilationDirectory() . '/' . md5($cache) . '$internal.cache.php';
+        if (count($reflector->getProperties())) {
+            if ($this->finder->exists($file)) {
+                $this->dependencies = require $file;
+                $this->annotated = true;
+            } else {
+                /** @var \ReflectionProperty $property */
+                foreach ($reflector->getProperties() as $property) {
+                    $autoWired = $this->reader->getPropertyAnnotation(
+                        $property, "Ytake\Container\Annotation\Annotations\Autowired"
+                    );
+                    if($autoWired) {
+                        $this->dependencies[$name][$property->getName()] = $autoWired->resolver();
+                        $this->annotated = true;
+                        $this->finder->putRelationFile($file, $this->dependencies);
+                        $this->propertyResolver($reflector);
+                    }
+                    $value = $this->reader->getPropertyAnnotation(
+                        $property, "Ytake\Container\Annotation\Annotations\Value"
+                    );
+                    if($value) {
+                        $this->dependencies[$name][$property->getName()] = $this->relations[$value->value];
+                        $this->annotated = true;
+                        $this->finder->putRelationFile($file, $this->dependencies);
+                        $this->propertyResolver($reflector);
+                    }
                 }
             }
         }
     }
 
-    /**
-     * @return Compiler
-     */
-    public function getCompiler()
-    {
-        return $this->compiler;
-    }
 }

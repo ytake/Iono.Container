@@ -81,8 +81,30 @@ class AnnotationManager
     public function reader()
     {
         $selectedReader = "get" . ucfirst($this->driver) . "Reader";
-        AnnotationRegistry::registerLoader('class_exists');
+        foreach($this->getDirectory(__DIR__ . '/Annotations') as $file) {
+            AnnotationRegistry::registerFile($file);
+        }
         return $this->$selectedReader();
+    }
+
+    /**
+     * @param $dir
+     * @return array
+     */
+    protected function getDirectory($dir)
+    {
+        $result = [];
+        $scanDir = scandir($dir);
+        foreach ($scanDir as $key => $value) {
+            if (!in_array($value, [".",".."])) {
+                if (is_dir($dir . DIRECTORY_SEPARATOR . $value)) {
+                    $result[$value] = $this->getDirectory($dir . DIRECTORY_SEPARATOR . $value);
+                } else {
+                    $result[] = $dir . DIRECTORY_SEPARATOR . $value;
+                }
+            }
+        }
+        return $result;
     }
 
     /**
@@ -91,5 +113,13 @@ class AnnotationManager
     public function getDriver()
     {
         return $this->driver;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getPath()
+    {
+        return $this->path;
     }
 }

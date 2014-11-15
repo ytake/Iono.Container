@@ -22,6 +22,7 @@ class Autowired extends Annotation
      */
     public function resolver()
     {
+        $this->value = ltrim($this->value, '\\');
         if($this->required) {
             if(!($this->value) ? $this->value : null) {
                 throw new \ErrorException();
@@ -29,6 +30,5 @@ class Autowired extends Annotation
             return $this->value;
         }
         return ($this->value) ? $this->value : null;
-
     }
 }
