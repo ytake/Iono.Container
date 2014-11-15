@@ -11,6 +11,6 @@ class Scope extends Annotation
 {
 
     /** @var string chose instance "prototype", "singleton"*/
-    public $scope = "prototype";
+    public $value = "prototype";
 
 }

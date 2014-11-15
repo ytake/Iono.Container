@@ -14,7 +14,7 @@ $compiler = new \Ytake\Container\Compiler($annotation->driver("apc")->reader());
 
 /** @var Ytake\Container\Container $compilerContainer */
 $compilerContainer = new \Ytake\Container\Container($compiler);
-$class = $compilerContainer->getBean()->make("Ytake\_TestContainer\AutowiredDemo");
+$class = $compilerContainer->setContainer()->make("Ytake\_TestContainer\AutowiredDemo");
 
 var_dump($class->getter());
 /**

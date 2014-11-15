@@ -14,9 +14,4 @@ abstract class Annotation
     /** @var bool  */
     public $required = true;
 
-    /** @var null  */
-    public $name = null;
-
-    /** @var null  */
-    public $scope = null;
 } 

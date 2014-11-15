@@ -10,6 +10,7 @@ use Ytake\Container\Annotation\Annotations\Component;
  */
 class NotImplementRepository
 {
+
     public function get()
     {
         // TODO: Implement get() method.
