@@ -8,11 +8,21 @@ illuminate/containerを拡張したコンテナライブラリです
 
 ## 注意
 現在開発中ですが、それっぽく動きます  
-ただし、PHPUnitテストで動かすにはapc.enable_cliを有効にしなければ動きません  
-**また現在はapcu-beta必須です**
-## Usage
-todo
 
+## Usage
+### set up annotation reader
+利用用途に合わせてファイルキャッシュ、apcキャッシュ、ノンキャッシュの
+アノテーションリーダーを選択します
+
+```php
+$annotation = new \Ytake\Container\Annotation\AnnotationManager();
+// file cache
+$annotation->driver("file")->reader();
+// apc cache
+$annotation->driver("apc")->reader();
+// non cache
+$annotation->reader();
+```
 ## What?
 javaのspring frameworkスタイルでアノテーションを利用します  
 
@@ -39,7 +49,6 @@ class AnnotationRepository implements AnnotationRepositoryInterface {}
 ```php
 class TestingClass
 {
-
     /**
      * @Autowired("AnnotationRepositoryInterface")
      */
@@ -50,6 +59,29 @@ class TestingClass
         return $this->class;
     }
 }
+```
 
+### @Component Named
+クラス自体に名前をつけてコンテナに登録します
+```php
+/**
+ * @Component("hello")
+ * Class Repository
+ */
+class AnnotationRepository {}
+```
+
+### @Value
+**@component("name")** で登録したクラスをコンテナから取得して
+フィールドにインジェクトします
+```php
+
+class Processer 
+{
+    /**
+     * @Value('hello')
+     */
+    $protected $hello;
+}
 ```
 **これらはtests配下のテストコードに含まれています**

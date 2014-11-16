@@ -219,6 +219,7 @@ class Compiler extends AbstractCompiler implements CompilerInterface
         if($parameters) {
             /** @var \ReflectionParameter $c */
             foreach ($parameters as $c) {
+
                 if ($c->getClass()) {
                     $construct->addParam($this->factory->param($c->name)->setTypeHint("\\" . $c->getClass()->name));
                 }

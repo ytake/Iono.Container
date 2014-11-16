@@ -29,7 +29,7 @@ class AnnotationContainerTest extends \PHPUnit_Framework_TestCase
     public function testAutowired()
     {
         /** @var  $class */
-        $class = $this->container->getBean()->make("Ytake\_TestContainer\Resolve\TestingClass");
+        $class = $this->container->setContainer()->make("Ytake\_TestContainer\Resolve\TestingClass");
 
         $reflectionClass = new \ReflectionClass($class);
         $this->assertInstanceOf("Ytake\_TestContainer\Resolve\TestingClass", $class);

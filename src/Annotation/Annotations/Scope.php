@@ -7,7 +7,7 @@ namespace Ytake\Container\Annotation\Annotations;
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
-class Scope extends Annotation
+final class Scope extends Annotation
 {
 
     /** @var string chose instance "prototype", "singleton"*/

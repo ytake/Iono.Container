@@ -35,6 +35,9 @@ class Container extends \Illuminate\Container\Container
     /** @var Finder  */
     protected $finder;
 
+    /** @var Resolver  */
+    protected $resolver;
+
     /** @var array  */
     protected $relations = [];
 
@@ -141,8 +144,6 @@ class Container extends \Illuminate\Container\Container
                     if($autoWired) {
                         $this->dependencies[$name][$property->getName()] = $autoWired->resolver();
                         $this->annotated = true;
-                        $this->finder->putRelationFile($file, $this->dependencies);
-                        $this->propertyResolver($reflector);
                     }
                     $value = $this->reader->getPropertyAnnotation(
                         $property, "Ytake\Container\Annotation\Annotations\Value"
@@ -150,9 +151,11 @@ class Container extends \Illuminate\Container\Container
                     if($value) {
                         $this->dependencies[$name][$property->getName()] = $this->relations[$value->value];
                         $this->annotated = true;
-                        $this->finder->putRelationFile($file, $this->dependencies);
-                        $this->propertyResolver($reflector);
                     }
+                }
+                if(isset($this->dependencies[$name])) {
+                    $this->finder->putRelationFile($file, $this->dependencies);
+                    $this->propertyResolver($reflector);
                 }
             }
         }

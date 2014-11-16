@@ -18,8 +18,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     public function testBinder()
     {
-        $this->container->bind("Ytake\_TestContainer\RepositoryInterface", "Ytake\_TestContainer\Repository");
+        $this->container->bind("Ytake\_TestContainer\Resolve\RepositoryInterface", "Ytake\_TestContainer\Resolve\Repository");
         $this->container->bind("abc", "stdClass");
-        $this->assertInstanceOf("Ytake\_TestContainer\Repository", $this->container->make("Ytake\_TestContainer\RepositoryInterface"));
+        $this->assertInstanceOf("Ytake\_TestContainer\Resolve\Repository", $this->container->make("Ytake\_TestContainer\Resolve\RepositoryInterface"));
     }
 }
