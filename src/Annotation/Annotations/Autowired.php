@@ -7,7 +7,7 @@ namespace Ytake\Container\Annotation\Annotations;
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
-class Autowired extends Annotation
+final class Autowired extends Annotation
 {
 
     /** @var  string */

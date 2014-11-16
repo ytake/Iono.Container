@@ -9,7 +9,7 @@ use Ytake\Container\Exception\AnnotationComponentException;
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
-class Component extends Annotation
+final class Component extends Annotation
 {
 
     /** @var string  */
