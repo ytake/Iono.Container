@@ -4,18 +4,16 @@ namespace Ytake\_TestContainer;
 use Ytake\Container\Annotation\AnnotationManager;
 use Ytake\Container\Compiler;
 
-class AnnotationContainerTest extends \PHPUnit_Framework_TestCase
+class AnnotationContainerTest extends TestCase
 {
     /** @var \Ytake\Container\Container */
     protected $container;
 
     public function setUp()
     {
-        $annotationManager = new AnnotationManager();
-
-        $this->container = new \Ytake\Container\Container(
-            new Compiler($annotationManager->driver("apc")->reader())
-        );
+	    parent::setUp();
+        $this->container = new \Ytake\Container\Container($this->compiler);
+	    $this->scanner();
     }
 
     public function testInstance()

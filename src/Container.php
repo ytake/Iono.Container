@@ -55,7 +55,7 @@ class Container extends \Illuminate\Container\Container
         if(!file_exists($this->compiler->getCompiledFile())) {
             throw new \Exception("annotation scanned file ot found");
         }
-        require_once $this->compiler->getCompiledFile();
+        require $this->compiler->getCompiledFile();
         $this->reader = $this->compiler->getAnnotationReader();
         return $this;
     }

@@ -1,1 +1,0 @@
-<?php return unserialize('a:1:{s:42:"Ytake\_TestContainer\Resolve\AutowiredDemo";a:1:{s:10:"repository";s:48:"Ytake\_TestContainer\Resolve\RepositoryInterface";}}');
