@@ -44,9 +44,6 @@ class Compiler extends AbstractCompiler implements CompilerInterface
     protected $arguments = [];
 
     /** @var array  */
-    protected $filedInjector = [];
-
-    /** @var array  */
     protected $traits = [];
 
     /**
@@ -76,7 +73,6 @@ class Compiler extends AbstractCompiler implements CompilerInterface
     public function builder(array $array)
     {
         $parameters = [];
-
         foreach($array as $class => $properties) {
 
             $className = $this->getClassName($class);
@@ -89,6 +85,7 @@ class Compiler extends AbstractCompiler implements CompilerInterface
                     ];
                 }
             }
+            $this->deleteCompiledFile();
             $this->activate();
             /** @var \PhpParser\Builder\Method $construct */
             $construct = $this->factory->method('__construct');
@@ -136,9 +133,6 @@ class Compiler extends AbstractCompiler implements CompilerInterface
         $path = $this->getCompilationDirectory() . '/' . $filename. '.php';
         $output = "<?php\n" . $this->printer->prettyPrint($stmts);
         file_put_contents($path, $output);
-        if(!file_exists($path)) {
-            $this->putCompiledFile($filename, $stmts);
-        }
     }
 
     /**
@@ -238,16 +232,25 @@ class Compiler extends AbstractCompiler implements CompilerInterface
      */
     private function setProperties(array $properties, \PhpParser\Builder\Method &$construct)
     {
-        foreach($properties as $key => $param) {
-            $this->filedInjector[$key] = $key;
-            $construct->addParam(
-                $this->factory->param($key)->setTypeHint("\\" . $param)
-            );
-        }
-        /** added constructor injection  */
-        if(count($this->filedInjector)) {
-            foreach($this->filedInjector as $target => $inject) {
-                $construct->addStmt(new \PhpParser\Node\Name("\$this->{$target} = \${$inject};"));
+        if(count($properties)) {
+            $fieldInjector = [];
+            foreach ($properties as $key => $param) {
+                try {
+                    $reflectionClass = new ReflectionClass($param);
+                    $construct->addParam(
+                        $this->factory->param($key)->setTypeHint("\\" . $reflectionClass->getName())
+                    );
+                    $fieldInjector[$key] = $key;
+                } catch (\ReflectionException $e) {
+                    $construct->addParam($this->factory->param($param));
+                    $fieldInjector[$key] = $param;
+                }
+            }
+            /** added constructor injection  */
+            if (count($fieldInjector)) {
+                foreach ($fieldInjector as $target => $inject) {
+                    $construct->addStmt(new \PhpParser\Node\Name("\$this->{$target} = \${$inject};"));
+                }
             }
         }
     }
@@ -281,4 +284,45 @@ class Compiler extends AbstractCompiler implements CompilerInterface
             }
         }
     }
-} 
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    public function getPropertyCompiledFile($name = '')
+    {
+        return $this->getCompilationDirectory() . '/' . md5($name) . '$internal.cache.php';
+    }
+
+    /**
+     * @param $path
+     * @param array $context
+     * @return int
+     */
+    public function putPropertyCompiledFile($path, array $context = [])
+    {
+        $context = "<?php return unserialize('" . serialize($context) . "');";
+        return file_put_contents($path, $context);
+    }
+
+    /**
+     * @return void
+     */
+    public function deleteCompiledFile()
+    {
+        $items = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator(
+                $this->getCompilationDirectory(),
+                \RecursiveDirectoryIterator::CURRENT_AS_SELF
+            ),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ($items as $item) {
+            if ($item->isFile() || $item->isLink()) {
+                unlink($item->getPathname());
+            } elseif ($item->isDir() && !$item->isDot()) {
+                rmdir($item->getPathname());
+            }
+        }
+    }
+}

@@ -13,9 +13,6 @@ class AutowiredDemo
      */
     protected $repository;
 
-    /**
-     * @Value("not")
-     */
     protected $noeInject;
 
     public function getter()

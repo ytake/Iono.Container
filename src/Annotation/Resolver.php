@@ -5,6 +5,7 @@ namespace Ytake\Container\Annotation;
  * Class Resolver
  * @package Ytake\Container\Annotation
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
+ * @license http://opensource.org/licenses/MIT MIT
  */
 class Resolver
 {

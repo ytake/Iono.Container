@@ -3,16 +3,16 @@ namespace Ytake\Container;
 
 use Closure;
 use ReflectionClass;
-use Ytake\Container\Annotation\Finder;
-use Ytake\Container\Annotation\Resolver;
 use Illuminate\Container\BindingResolutionException;
 
-
 /**
+ *
+ * {@inheritdoc}
  * Class Container
  * @package Ytake\Container
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
+ *
  */
 class Container extends \Illuminate\Container\Container
 {
@@ -32,12 +32,6 @@ class Container extends \Illuminate\Container\Container
     /** @var \Doctrine\Common\Annotations\Reader  */
     protected $reader;
 
-    /** @var Finder  */
-    protected $finder;
-
-    /** @var Resolver  */
-    protected $resolver;
-
     /** @var array  */
     protected $relations = [];
 
@@ -54,13 +48,15 @@ class Container extends \Illuminate\Container\Container
     /**
      * get component annotation scanned files
      * @return $this
+     * @throws \Exception
      */
     public function setContainer()
     {
+        if(!file_exists($this->compiler->getCompiledFile())) {
+            throw new \Exception("annotation scanned file ot found");
+        }
         require_once $this->compiler->getCompiledFile();
         $this->reader = $this->compiler->getAnnotationReader();
-        $this->resolver = new Resolver;
-        $this->finder = new Finder($this->resolver);
         return $this;
     }
 
@@ -80,12 +76,7 @@ class Container extends \Illuminate\Container\Container
         if(is_null($this->compiler)) {
             return parent::build($concrete, $parameters);
         }
-        $reflector = new ReflectionClass($concrete);
-
-        if (!$reflector->isInstantiable()) {
-            $message = "Target [$concrete] is not instantiable.";
-            throw new BindingResolutionException($message);
-        }
+        $reflector = $this->instantiable($concrete);
         $constructor = $reflector->getConstructor();
 
         $this->annotated = false;
@@ -97,7 +88,6 @@ class Container extends \Illuminate\Container\Container
             }
             return new $concrete;
         }
-
         if($this->annotated) {
             return $this->newInstance($parameters);
         }
@@ -129,10 +119,9 @@ class Container extends \Illuminate\Container\Container
     protected function propertyResolver(ReflectionClass $reflector)
     {
         $name = $reflector->getName();
-        $cache = md5($name);
-        $file = $this->compiler->getCompilationDirectory() . '/' . md5($cache) . '$internal.cache.php';
+        $file = $this->compiler->getPropertyCompiledFile($name);
         if (count($reflector->getProperties())) {
-            if ($this->finder->exists($file)) {
+            if (file_exists($file)) {
                 $this->dependencies = require $file;
                 $this->annotated = true;
             } else {
@@ -143,22 +132,51 @@ class Container extends \Illuminate\Container\Container
                     );
                     if($autoWired) {
                         $this->dependencies[$name][$property->getName()] = $autoWired->resolver();
-                        $this->annotated = true;
                     }
                     $value = $this->reader->getPropertyAnnotation(
                         $property, "Ytake\Container\Annotation\Annotations\Value"
                     );
                     if($value) {
-                        $this->dependencies[$name][$property->getName()] = $this->relations[$value->value];
-                        $this->annotated = true;
+                        $this->dependencies[$name][$property->getName()] = $value->value;
                     }
                 }
                 if(isset($this->dependencies[$name])) {
-                    $this->finder->putRelationFile($file, $this->dependencies);
+                    $this->annotated = true;
+                    $this->compiler->putPropertyCompiledFile($file, $this->dependencies);
                     $this->propertyResolver($reflector);
                 }
             }
         }
     }
 
+    /**
+     * @param $concrete
+     * @return ReflectionClass
+     * @throws BindingResolutionException
+     */
+    protected function instantiable($concrete)
+    {
+        $reflector = new ReflectionClass($concrete);
+        if (!$reflector->isInstantiable()) {
+            $message = "Target [$concrete] is not instantiable.";
+            throw new BindingResolutionException($message);
+        }
+        return $reflector;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see \Illuminate\Container\Container::resolveNonClass
+     */
+    protected function resolveNonClass(\ReflectionParameter $parameter)
+    {
+        if ($parameter->isDefaultValueAvailable()) {
+            return $parameter->getDefaultValue();
+        }
+        if(isset($this->relations[$parameter->getName()])) {
+            return $this->make($parameter->getName());
+        }
+        $message = "Unresolvable dependency resolving [$parameter] in class {$parameter->getDeclaringClass()->getName()}";
+        throw new BindingResolutionException($message);
+    }
 }

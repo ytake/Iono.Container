@@ -4,20 +4,19 @@ namespace Ytake\Container\Annotation;
 use TokenReflection\Broker;
 use Illuminate\Filesystem\Filesystem;
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use Ytake\Container\CompilerInterface;
 
 /**
- * Class Finder
+ * Class Scanner
  * @package Ytake\Container\Annotation
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
+ * @license http://opensource.org/licenses/MIT MIT
  */
-class Finder extends Filesystem
+class Scanner extends Filesystem
 {
 
-    /** @var array  */
-    protected $files = [];
-
     /** @var \Ytake\Container\Compiler */
-    private static $compiler;
+    protected $compiler;
 
     /** @var Resolver  */
     protected $resolver;
@@ -25,9 +24,10 @@ class Finder extends Filesystem
     /**
      * @param Resolver $resolver
      */
-    public function __construct(Resolver $resolver)
+    public function __construct(Resolver $resolver, CompilerInterface $compiler)
     {
         $this->resolver = $resolver;
+        $this->compiler = $compiler;
     }
 
     /**
@@ -43,20 +43,14 @@ class Finder extends Filesystem
 
     /**
      * @param $loader
-     * @param null $outputPath
      * @param null $targetPath
      * @param array $filters
      * @return array
      */
-    public function setUpScanner($loader, $outputPath = null, $targetPath = null, array $filters = [])
+    public function setUpScanner($loader, $targetPath = null, array $filters = [])
     {
-        $manager = new \Ytake\Container\Annotation\AnnotationManager();
-        self::$compiler = new \Ytake\Container\Compiler($manager->reader());
-        /** force compile */
-        self::$compiler = self::$compiler->setCompilePath($outputPath)->setForceCompile(true);
         /** annotation register */
         AnnotationRegistry::registerLoader([$loader, 'loadClass']);
-
         $broker = new Broker(new Broker\Backend\Memory());
         $broker->processDirectory($targetPath, $filters);
         return $broker->getFiles();
@@ -79,7 +73,7 @@ class Finder extends Filesystem
                     foreach($namespace->getClasses() as $class => $value) {
                         $reflectionClass = new \ReflectionClass($class);
                         /** @var array $annotations */
-                        $annotations = self::$compiler->getAnnotationReader()
+                        $annotations = $this->compiler->getAnnotationReader()
                             ->getClassAnnotations($reflectionClass);
                         if(count($annotations)) {
                             $relations[] = $this->resolver->classAnnotation($annotations, $reflectionClass);
@@ -88,7 +82,9 @@ class Finder extends Filesystem
                 }
             }
         }
-        return $this->writeRelationFile($relations);
+        $this->writeRelationFile($relations);
+        $this->makeDir();
+        return;
     }
 
     /**
@@ -109,6 +105,18 @@ class Finder extends Filesystem
                 }
             }
         }
-        return $this->put(self::$compiler->getCompiledFile(), $string);
+        return $this->put($this->compiler->getCompiledFile(), $string);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function makeDir()
+    {
+        if(!file_exists($this->compiler->getCompilationDirectory())) {
+            echo "\032[0;31m[make directory:{$this->compiler->getCompilationDirectory()}]\032[0m";
+            return mkdir($this->compiler->getCompilationDirectory());
+        }
+        echo "\033[0;31mError [directory exists:{$this->compiler->getCompilationDirectory()}]\033[0m\n";
     }
 } 

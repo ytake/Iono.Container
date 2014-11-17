@@ -81,7 +81,7 @@ class AnnotationManager
     public function reader()
     {
         $selectedReader = "get" . ucfirst($this->driver) . "Reader";
-        foreach($this->getDirectory(__DIR__ . '/Annotations') as $file) {
+        foreach($this->getDirectory(dirname(__DIR__) . '/Annotation/Annotations') as $file) {
             AnnotationRegistry::registerFile($file);
         }
         return $this->$selectedReader();
