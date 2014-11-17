@@ -6,6 +6,7 @@ use Ytake\Container\Exception\AnnotationComponentException;
 /**
  * @Annotation
  * @Target("CLASS")
+ * @final
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
