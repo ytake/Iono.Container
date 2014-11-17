@@ -3,6 +3,8 @@ Iono.Container
 **develop only**
 ## About
 illuminate/containerを拡張したコンテナライブラリです  
+[![Build Status](http://img.shields.io/travis/ytake/Iono.Container/develop.svg?style=flat)](https://travis-ci.org/ytake/Iono.Container)
+[![Coverage Status](http://img.shields.io/coveralls/ytake/Iono.Container/develop.svg?style=flat)](https://coveralls.io/r/ytake/Iono.Container?branch=develop)
 [![Scrutinizer Code Quality](http://img.shields.io/scrutinizer/g/ytake/Iono.Container.svg?style=flat)](https://scrutinizer-ci.com/g/ytake/Iono.Container/?branch=develop)
 [![Dependency Status](https://www.versioneye.com/user/projects/546a19dca760cea242000031/badge.svg?style=flat)](https://www.versioneye.com/user/projects/546a19dca760cea242000031)
 ![Iono.Container](http://img.shields.io/badge/iono-container-yellowgreen.svg?style=flat)
