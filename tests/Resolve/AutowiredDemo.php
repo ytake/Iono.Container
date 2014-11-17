@@ -2,7 +2,6 @@
 namespace Ytake\_TestContainer\Resolve;
 
 use Ytake\Container\Annotation\Annotations\Autowired;
-use Ytake\Container\Annotation\Annotations\Value;
 
 class AutowiredDemo
 {

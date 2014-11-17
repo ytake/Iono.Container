@@ -21,9 +21,10 @@ class TestCase extends \PHPUnit_Framework_TestCase
      */
     public function scanner()
     {
-        $path = dirname(realpath(null)) . '/tests';
+        $path = dirname(__FILE__);
         $this->compiler->setCompilePath($path . '/resource')->setForceCompile(false);
         $annotationFinder = new Scanner(new Resolver, $this->compiler);
+
         $loader = require dirname(__DIR__) . '/vendor/autoload.php';
         $files = $annotationFinder->setUpScanner($loader, $path . '/Resolve');
         ob_start();
