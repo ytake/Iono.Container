@@ -13,7 +13,6 @@
     "require": {
         "php": ">=5.4",
         "ext-tokenizer": "*",
-        "ext-apcu": "*",
         "illuminate/config": "4.2.*",
         "illuminate/container": "4.2.*",
         "nikic/php-parser": "1.*",
