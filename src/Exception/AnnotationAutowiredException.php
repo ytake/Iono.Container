@@ -1,9 +1,9 @@
 <?php
-namespace Ytake\Container\Exception;
+namespace Iono\Container\Exception;
 
 /**
  * Class AnnotationAutowiredException
- * @package Ytake\Container\Exception
+ * @package Iono\Container\Exception
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  */
 class AnnotationAutowiredException extends \Exception

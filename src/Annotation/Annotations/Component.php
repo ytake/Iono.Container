@@ -1,7 +1,7 @@
 <?php
-namespace Ytake\Container\Annotation\Annotations;
+namespace Iono\Container\Annotation\Annotations;
 
-use Ytake\Container\Exception\AnnotationComponentException;
+use Iono\Container\Exception\AnnotationComponentException;
 
 /**
  * @Annotation

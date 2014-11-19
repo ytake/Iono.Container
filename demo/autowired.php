@@ -6,15 +6,15 @@ require __DIR__ . "/../vendor/autoload.php";
  * compilerを引数に加えると、java SpringFrameworkの
  * Componentアノテーション, Autowiredアノテーションが利用できます
  * usage illuminate container
- * @see Ytake\_TestContainer\AutowiredDemo 実行クラス
- * @see Ytake\_TestContainer\Repository Component登録されたクラス
+ * @see Iono\_TestContainer\AutowiredDemo 実行クラス
+ * @see Iono\_TestContainer\Repository Component登録されたクラス
  */
-$annotation = new \Ytake\Container\Annotation\AnnotationManager();
-$compiler = new \Ytake\Container\Compiler($annotation->driver("apc")->reader());
+$annotation = new \Iono\Container\Annotation\AnnotationManager();
+$compiler = new \Iono\Container\Compiler($annotation->driver("apc")->reader());
 
-/** @var Ytake\Container\Container $compilerContainer */
-$compilerContainer = new \Ytake\Container\Container($compiler);
-$class = $compilerContainer->setContainer()->make("Ytake\_TestContainer\AutowiredDemo");
+/** @var Iono\Container\Container $compilerContainer */
+$compilerContainer = new \Iono\Container\Container($compiler);
+$class = $compilerContainer->setContainer()->make("Iono\_TestContainer\AutowiredDemo");
 
 var_dump($class->getter());
 /**

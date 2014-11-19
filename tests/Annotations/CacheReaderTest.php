@@ -1,7 +1,7 @@
 <?php
-namespace Ytake\_TestContainer\Annotations;
+namespace Iono\_TestContainer\Annotations;
 
-use Ytake\Container\Annotation\AnnotationManager;
+use Iono\Container\Annotation\AnnotationManager;
 
 class ApcCacheReaderTest extends \PHPUnit_Framework_TestCase
 {
@@ -16,7 +16,7 @@ class ApcCacheReaderTest extends \PHPUnit_Framework_TestCase
 
     public function testInstance()
     {
-        $this->assertInstanceOf("Ytake\Container\Annotation\AnnotationManager", $this->manager);
+        $this->assertInstanceOf("Iono\Container\Annotation\AnnotationManager", $this->manager);
     }
 
     public function testApcCache()

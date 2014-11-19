@@ -1,9 +1,9 @@
 <?php
-namespace Ytake\Container\Annotation;
+namespace Iono\Container\Annotation;
 
 /**
  * Class Resolver
- * @package Ytake\Container\Annotation
+ * @package Iono\Container\Annotation
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
@@ -14,13 +14,13 @@ class Resolver
      * @param array $annotations
      * @param \ReflectionClass $reflectionClass
      * @return array
-     * @throws \Ytake\Container\Exception\AnnotationComponentException
+     * @throws \Iono\Container\Exception\AnnotationComponentException
      */
     public function classAnnotation(array $annotations, \ReflectionClass $reflectionClass)
     {
         $classAnnotation = [];
         foreach($annotations as $annotation) {
-            if($annotation instanceof \Ytake\Container\Annotation\Annotations\Component) {
+            if($annotation instanceof \Iono\Container\Annotation\Annotations\Component) {
                 $classAnnotation[] = $annotation->resolver($reflectionClass);
             }
         }
@@ -37,10 +37,10 @@ class Resolver
     {
         $propertyAnnotation = null;
         foreach($annotations as $annotation) {
-            if($annotation instanceof \Ytake\Container\Annotation\Annotations\Autowired) {
+            if($annotation instanceof \Iono\Container\Annotation\Annotations\Autowired) {
                 $propertyAnnotation[$reflectionProperty->getName()] = $annotation->resolver();
             }
-            if($annotation instanceof \Ytake\Container\Annotation\Annotations\Value) {
+            if($annotation instanceof \Iono\Container\Annotation\Annotations\Value) {
                 $propertyAnnotation[$reflectionProperty->getName()] = $annotation->value;
             }
         }
