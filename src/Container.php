@@ -1,5 +1,5 @@
 <?php
-namespace Ytake\Container;
+namespace Iono\Container;
 
 use Closure;
 use ReflectionClass;
@@ -9,7 +9,7 @@ use Illuminate\Container\BindingResolutionException;
  *
  * {@inheritdoc}
  * Class Container
- * @package Ytake\Container
+ * @package Iono\Container
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  *
@@ -17,7 +17,7 @@ use Illuminate\Container\BindingResolutionException;
 class Container extends \Illuminate\Container\Container
 {
 
-    /** @var Compiler  */
+    /** @var CompilerInterface  */
     protected $compiler;
 
     /** @var bool  */
@@ -34,8 +34,6 @@ class Container extends \Illuminate\Container\Container
 
     /** @var array  */
     protected $relations = [];
-
-    const ANNOTATION_SUFFIX = '\\Ytake\\Container\\Annotation\\Annotations\\';
 
     /**
      * @param CompilerInterface $compiler
@@ -128,13 +126,13 @@ class Container extends \Illuminate\Container\Container
                 /** @var \ReflectionProperty $property */
                 foreach ($reflector->getProperties() as $property) {
                     $autoWired = $this->reader->getPropertyAnnotation(
-                        $property, "Ytake\Container\Annotation\Annotations\Autowired"
+                        $property, "Iono\Container\Annotation\Annotations\Autowired"
                     );
                     if($autoWired) {
                         $this->dependencies[$name][$property->getName()] = $autoWired->resolver();
                     }
                     $value = $this->reader->getPropertyAnnotation(
-                        $property, "Ytake\Container\Annotation\Annotations\Value"
+                        $property, "Iono\Container\Annotation\Annotations\Value"
                     );
                     if($value) {
                         $this->dependencies[$name][$property->getName()] = $value->value;

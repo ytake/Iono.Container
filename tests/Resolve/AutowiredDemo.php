@@ -1,14 +1,14 @@
 <?php
-namespace Ytake\_TestContainer\Resolve;
+namespace Iono\_TestContainer\Resolve;
 
-use Ytake\Container\Annotation\Annotations\Autowired;
+use Iono\Container\Annotation\Annotations\Autowired;
 
 class AutowiredDemo
 {
 
     /**
-     * @var \Ytake\_TestContainer\Resolve\RepositoryInterface
-     * @Autowired("\Ytake\_TestContainer\Resolve\RepositoryInterface")
+     * @var \Iono\_TestContainer\Resolve\RepositoryInterface
+     * @Autowired("\Iono\_TestContainer\Resolve\RepositoryInterface")
      */
     protected $repository;
 

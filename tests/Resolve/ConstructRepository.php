@@ -1,5 +1,5 @@
 <?php
-namespace Ytake\_TestContainer\Resolve;
+namespace Iono\_TestContainer\Resolve;
 
 class ConstructRepository implements RepositoryInterface
 {

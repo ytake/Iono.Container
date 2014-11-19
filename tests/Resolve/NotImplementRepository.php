@@ -1,11 +1,11 @@
 <?php
-namespace Ytake\_TestContainer\Resolve;
+namespace Iono\_TestContainer\Resolve;
 
-use Ytake\Container\Annotation\Annotations\Component;
+use Iono\Container\Annotation\Annotations\Component;
 
 /**
  * Class Repository
- * @package Ytake\_TestContainer
+ * @package Iono\_TestContainer
  * @Component("not")
  */
 class NotImplementRepository

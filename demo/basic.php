@@ -7,10 +7,10 @@ require __DIR__ . "/../vendor/autoload.php";
  * 引数を与えなければilluminate/containerが利用されます
  *
  * usage illuminate container
- * @see Ytake\_TestContainer\StandardDemo
+ * @see Iono\_TestContainer\StandardDemo
  */
-$container = new \Ytake\Container\Container();
+$container = new \Iono\Container\Container();
 
-$container->bind("Ytake\_TestContainer\RepositoryInterface", "Ytake\_TestContainer\Repository");
-$class = $container->make("Ytake\_TestContainer\StandardDemo");
+$container->bind("Iono\_TestContainer\RepositoryInterface", "Iono\_TestContainer\Repository");
+$class = $container->make("Iono\_TestContainer\StandardDemo");
 

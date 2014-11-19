@@ -29,14 +29,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Ytake\\Container\\": "src/"
+            "Iono\\Container\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Ytake\\_TestContainer\\": [
-                "tests/",
-                "tests/binding/"
+            "Iono\\_TestContainer\\": [
+                "tests/"
             ]
         }
     }

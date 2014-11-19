@@ -1,29 +1,30 @@
 <?php
-namespace Ytake\Container\Annotation;
+namespace Iono\Container\Annotation;
 
 use TokenReflection\Broker;
+use Iono\Container\CompilerInterface;
 use Illuminate\Filesystem\Filesystem;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use Ytake\Container\CompilerInterface;
 
 /**
  * Class Scanner
- * @package Ytake\Container\Annotation
+ * @package Iono\Container\Annotation
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
 class Scanner extends Filesystem
 {
 
-    /** @var \Ytake\Container\Compiler */
+    /** @var \Iono\Container\CompilerInterface */
     protected $compiler;
 
     /** @var Resolver  */
     protected $resolver;
 
-    /**
-     * @param Resolver $resolver
-     */
+	/**
+	 * @param Resolver $resolver
+	 * @param CompilerInterface $compiler
+	 */
     public function __construct(Resolver $resolver, CompilerInterface $compiler)
     {
         $this->resolver = $resolver;
@@ -43,11 +44,11 @@ class Scanner extends Filesystem
 
     /**
      * @param $loader
-     * @param null $targetPath
+     * @param string $targetPath
      * @param array $filters
      * @return array
      */
-    public function setUpScanner($loader, $targetPath = null, array $filters = [])
+    public function setUpScanner($loader, $targetPath = '', array $filters = [])
     {
         /** annotation register */
         AnnotationRegistry::registerLoader([$loader, 'loadClass']);
@@ -117,6 +118,5 @@ class Scanner extends Filesystem
             echo "\032[0;31m[make directory:{$this->compiler->getCompilationDirectory()}]\032[0m";
             return mkdir($this->compiler->getCompilationDirectory());
         }
-        echo "\033[0;31mError [directory exists:{$this->compiler->getCompilationDirectory()}]\033[0m\n";
     }
 } 

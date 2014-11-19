@@ -1,7 +1,7 @@
 <?php
-namespace Ytake\_TestContainer;
+namespace Iono\_TestContainer;
 
-use Ytake\Container\Container;
+use Iono\Container\Container;
 
 class ContainerTest extends TestCase
 {
@@ -20,16 +20,8 @@ class ContainerTest extends TestCase
 
     public function testInstance()
     {
-        $this->assertInstanceOf("Ytake\Container\Container", $this->illumianteContainer);
-        $this->assertInstanceOf("Ytake\Container\Container", $this->container);
-    }
-
-    /**
-     * @expectedException \Exception
-     */
-    public function testSetUpContainerException()
-    {
-        $this->container->setContainer();
+        $this->assertInstanceOf("Iono\Container\Container", $this->illumianteContainer);
+        $this->assertInstanceOf("Iono\Container\Container", $this->container);
     }
 
     public function testSetUpContainer()
@@ -37,8 +29,8 @@ class ContainerTest extends TestCase
         $this->scanner();
         $this->container->setContainer();
         $this->assertInstanceOf(
-            "Ytake_TestContainerResolveAutowiredDemo",
-            $this->container->make('Ytake\_TestContainer\Resolve\AutowiredDemo')
+            "Iono_TestContainerResolveAutowiredDemo",
+            $this->container->make('Iono\_TestContainer\Resolve\AutowiredDemo')
         );
     }
 }

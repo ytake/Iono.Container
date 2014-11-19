@@ -1,19 +1,18 @@
 <?php
-namespace Ytake\_TestContainer;
+namespace Iono\_TestContainer;
 
-
-use Ytake\Container\Annotation\Resolver;
-use Ytake\Container\Annotation\Scanner;
+use Iono\Container\Annotation\Resolver;
+use Iono\Container\Annotation\Scanner;
 
 class TestCase extends \PHPUnit_Framework_TestCase
 {
-    /** @var \Ytake\Container\Compiler $compiler */
+    /** @var \Iono\Container\Compiler $compiler */
     protected $compiler;
 
     public function setUp()
     {
-        $annotation = new \Ytake\Container\Annotation\AnnotationManager();
-        $this->compiler = new \Ytake\Container\Compiler($annotation->reader());
+        $annotation = new \Iono\Container\Annotation\AnnotationManager();
+        $this->compiler = new \Iono\Container\Compiler($annotation->reader());
     }
 
     /**

@@ -1,5 +1,5 @@
 <?php
-namespace Ytake\Container\Annotation;
+namespace Iono\Container\Annotation;
 
 use Doctrine\Common\Cache\ApcCache;
 use Doctrine\Common\Annotations\CachedReader;
@@ -9,7 +9,7 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 
 /**
  * Class AnnotationManager
- * @package Ytake\Container\Annotation
+ * @package Iono\Container\Annotation
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
@@ -27,7 +27,7 @@ class AnnotationManager
 
     public function __construct()
     {
-        $this->path = dirname(dirname(realpath(__DIR__))) . "/resource";
+        $this->path = dirname(dirname(dirname(__FILE__))) . "/resource";
     }
 
     /**

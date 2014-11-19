@@ -1,5 +1,5 @@
 <?php
-namespace Ytake\Container;
+namespace Iono\Container;
 
 use ReflectionClass;
 use PhpParser\BuilderFactory;
@@ -9,7 +9,7 @@ use Doctrine\Common\Annotations\Reader;
 
 /**
  * Class Compiler
- * @package Ytake\Container
+ * @package Iono\Container
  * @author yuuki.takezawa<yuuki.takezawa@comnect.jp.net>
  * @license http://opensource.org/licenses/MIT MIT
  */
@@ -45,6 +45,9 @@ class Compiler extends AbstractCompiler implements CompilerInterface
 
     /** @var array  */
     protected $traits = [];
+
+	/** @var Reader  */
+	protected $reader;
 
     /**
      * @param Reader $reader
