@@ -1,0 +1,36 @@
+<?php
+namespace Iono\_TestContainer;
+
+use Iono\Container\Container;
+
+class ContainerTest extends TestCase
+{
+    /** @var Container */
+    protected $illumianteContainer;
+    /** @var Container  */
+    protected $container;
+
+    public function setUp()
+    {
+        parent::setUp();
+        $this->illumianteContainer = new Container();
+        $this->container = new Container($this->compiler);
+
+    }
+
+    public function testInstance()
+    {
+        $this->assertInstanceOf("Iono\Container\Container", $this->illumianteContainer);
+        $this->assertInstanceOf("Iono\Container\Container", $this->container);
+    }
+
+    public function testSetUpContainer()
+    {
+        $this->scanner();
+        $this->container->setContainer();
+        $this->assertInstanceOf(
+            "Iono_TestContainerResolveAutowiredDemo",
+            $this->container->make('Iono\_TestContainer\Resolve\AutowiredDemo')
+        );
+    }
+}
