@@ -21,27 +21,40 @@ class AnnotationContainerTest extends TestCase
         $this->assertInstanceOf("Iono\Container\Container", $this->container);
     }
 
-    /**
-     * @see \Iono\_TestContainer\TestingClass
-     */
+	/**
+	 * @see \Iono\_TestContainer\Resolve\TestingClass
+	 */
+	public function testClassResolver()
+	{
+		/** @var  $class */
+		$class = $this->container->setContainer()->make("Iono\_TestContainer\Resolve\TestingClass");
+
+		$reflectionClass = new \ReflectionClass($class);
+		$this->assertInstanceOf("Iono\_TestContainer\Resolve\TestingClass", $class);
+		$reflectionProperty = $reflectionClass->getProperty("repository");
+		$reflectionProperty->setAccessible(true);
+		$this->assertInstanceOf("Iono\_TestContainer\Resolve\Repository", $reflectionProperty->getValue($class));
+		$this->assertInstanceOf("Iono\_TestContainer\Resolve\Repository", $class->get());
+
+		$reflectionProperty = $reflectionClass->getProperty("class");
+		$reflectionProperty->setAccessible(true);
+		$this->assertInstanceOf("stdClass", $reflectionProperty->getValue($class));
+
+		$reflectionProperty = $reflectionClass->getProperty("property");
+		$reflectionProperty->setAccessible(true);
+		$this->assertNull($reflectionProperty->getValue($class));
+	}
+
+
+	/**
+	 * @see \Iono\_TestContainer\Resolve\AutowiredDemo
+	 */
     public function testAutowired()
     {
-        /** @var  $class */
-        $class = $this->container->setContainer()->make("Iono\_TestContainer\Resolve\TestingClass");
-
-        $reflectionClass = new \ReflectionClass($class);
-        $this->assertInstanceOf("Iono\_TestContainer\Resolve\TestingClass", $class);
-        $reflectionProperty = $reflectionClass->getProperty("repository");
-        $reflectionProperty->setAccessible(true);
-        $this->assertInstanceOf("Iono\_TestContainer\Resolve\Repository", $reflectionProperty->getValue($class));
-        $this->assertInstanceOf("Iono\_TestContainer\Resolve\Repository", $class->get());
-
-        $reflectionProperty = $reflectionClass->getProperty("class");
-        $reflectionProperty->setAccessible(true);
-        $this->assertInstanceOf("stdClass", $reflectionProperty->getValue($class));
-
-        $reflectionProperty = $reflectionClass->getProperty("property");
-        $reflectionProperty->setAccessible(true);
-        $this->assertNull($reflectionProperty->getValue($class));
+	    $wired = $this->container->setContainer()->make("Iono\_TestContainer\Resolve\AutowiredDemo");
+	    $reflectionClass = new \ReflectionClass($wired);
+	    $reflectionProperty = $reflectionClass->getProperty("noInject");
+	    $reflectionProperty->setAccessible(true);
+	    $this->assertInstanceOf("Iono\_TestContainer\Resolve\NotImplementRepository", $reflectionProperty->getValue($wired));
     }
 }

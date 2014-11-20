@@ -20,12 +20,12 @@ class CompilerTest extends TestCase
         $this->assertInternalType('string', $this->compiler->getCompilationDirectory());
         $this->compiler->setCompilePath(dirname(__DIR__) . '/tests/resource');
         $this->assertSame(dirname(__DIR__) . '/tests/resource/compiled', $this->compiler->getCompilationDirectory());
-        $this->assertInstanceOf("Doctrine\Common\Annotations\AnnotationReader", $this->compiler->getAnnotationReader());
+        $this->assertInstanceOf("Doctrine\Common\Annotations\FileCacheReader", $this->compiler->getAnnotationManager());
     }
 
     public function testAnnotationReader()
     {
-        $this->assertInstanceOf('Doctrine\Common\Annotations\AnnotationReader', $this->compiler->getAnnotationReader());
+        $this->assertInstanceOf('Doctrine\Common\Annotations\FileCacheReader', $this->compiler->getAnnotationManager());
     }
 
     public function testSetupForce()

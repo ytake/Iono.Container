@@ -21,4 +21,9 @@ abstract class AbstractCompiler
      * @return void
      */
     abstract protected function activate();
+
+	/**
+	 * @return mixed
+	 */
+	abstract protected function configure();
 }

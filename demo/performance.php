@@ -21,8 +21,11 @@ echo sprintf("%0.5f\n", ($end - $start));
  * Autowired Performance
  *  micro benchmark
  */
-$annotation = new \Iono\Container\Annotation\AnnotationManager();
-$compiler = new \Iono\Container\Compiler($annotation->driver("file")->reader());
+$config = new \Iono\Container\Configure();
+$compiler = new \Iono\Container\Compiler(
+	new \Iono\Container\Annotation\AnnotationManager(),
+	$config->set(require dirname(__FILE__) . '/../resource/config.php')
+);
 $compiler->setForceCompile(false);
 $compilerContainer = new \Iono\Container\Container($compiler);
 $container = $compilerContainer->setContainer();

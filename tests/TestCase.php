@@ -3,6 +3,7 @@ namespace Iono\_TestContainer;
 
 use Iono\Container\Annotation\Resolver;
 use Iono\Container\Annotation\Scanner;
+use Iono\Container\Configure;
 
 class TestCase extends \PHPUnit_Framework_TestCase
 {
@@ -12,7 +13,9 @@ class TestCase extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $annotation = new \Iono\Container\Annotation\AnnotationManager();
-        $this->compiler = new \Iono\Container\Compiler($annotation->reader());
+	    $config = new Configure();
+	    $config->set(require dirname(__FILE__) . '/resource/config.php');
+        $this->compiler = new \Iono\Container\Compiler($annotation, $config);
     }
 
     /**
@@ -20,12 +23,10 @@ class TestCase extends \PHPUnit_Framework_TestCase
      */
     public function scanner()
     {
-        $path = dirname(__FILE__);
-        $this->compiler->setCompilePath($path . '/resource')->setForceCompile(false);
+        $this->compiler->setForceCompile(false);
         $annotationFinder = new Scanner(new Resolver, $this->compiler);
-
         $loader = require dirname(__DIR__) . '/vendor/autoload.php';
-        $files = $annotationFinder->setUpScanner($loader, $path . '/Resolve');
+        $files = $annotationFinder->setUpScanner($loader);
         ob_start();
         $annotationFinder->scan($files);
         ob_end_clean();

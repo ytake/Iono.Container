@@ -40,9 +40,9 @@ interface CompilerInterface
     public function setCompilePath($path = null);
 
     /**
-     * @return mixed
+     * @return \Doctrine\Common\Annotations\Reader
      */
-    public function getAnnotationReader();
+    public function getAnnotationManager();
 
     /**
      * @param bool $force
@@ -50,4 +50,21 @@ interface CompilerInterface
      */
     public function setForceCompile($force = true);
 
+	/**
+	 * @param string $name
+	 * @return mixed
+	 */
+	public function getPropertyCompiledFile($name);
+
+	/**
+	 * @param $file
+	 * @param array $dependencies
+	 * @return mixed
+	 */
+	public function putPropertyCompiledFile($file, array $dependencies);
+
+	/**
+	 * @return mixed
+	 */
+	public function scanTargetPath();
 }

@@ -44,16 +44,15 @@ class Scanner extends Filesystem
 
     /**
      * @param $loader
-     * @param string $targetPath
      * @param array $filters
      * @return array
      */
-    public function setUpScanner($loader, $targetPath = '', array $filters = [])
+    public function setUpScanner($loader, array $filters = [])
     {
         /** annotation register */
         AnnotationRegistry::registerLoader([$loader, 'loadClass']);
         $broker = new Broker(new Broker\Backend\Memory());
-        $broker->processDirectory($targetPath, $filters);
+        $broker->processDirectory($this->compiler->scanTargetPath(), $filters);
         return $broker->getFiles();
     }
 
@@ -74,7 +73,7 @@ class Scanner extends Filesystem
                     foreach($namespace->getClasses() as $class => $value) {
                         $reflectionClass = new \ReflectionClass($class);
                         /** @var array $annotations */
-                        $annotations = $this->compiler->getAnnotationReader()
+                        $annotations = $this->compiler->getAnnotationManager()
                             ->getClassAnnotations($reflectionClass);
                         if(count($annotations)) {
                             $relations[] = $this->resolver->classAnnotation($annotations, $reflectionClass);

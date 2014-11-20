@@ -11,6 +11,6 @@ require __DIR__ . "/../vendor/autoload.php";
  */
 $container = new \Iono\Container\Container();
 
-$container->bind("Iono\_TestContainer\RepositoryInterface", "Iono\_TestContainer\Repository");
-$class = $container->make("Iono\_TestContainer\StandardDemo");
+$container->bind("Iono\_TestContainer\Resolve\RepositoryInterface", "Iono\_TestContainer\Resolve\Repository");
+$class = $container->make("Iono\_TestContainer\Resolve\StandardDemo");
 
