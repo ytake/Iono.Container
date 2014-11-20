@@ -14,4 +14,4 @@ abstract class AbstractReader
      * @return \Doctrine\Common\Annotations\Reader
      */
     abstract public function getReader();
-} 
+}

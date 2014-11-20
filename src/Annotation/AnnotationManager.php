@@ -19,8 +19,8 @@ class AnnotationManager
     /** @var string default annotation driver */
     protected $driver = "simple";
 
-    /** @var null  */
-    protected $path = null;
+    /** @var string  */
+    protected $path;
 
     /** @var bool  */
     protected $debug = false;

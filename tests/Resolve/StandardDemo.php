@@ -26,4 +26,4 @@ class StandardDemo
     {
         return $this->repository;
     }
-} 
+}

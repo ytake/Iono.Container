@@ -50,4 +50,4 @@ interface CompilerInterface
      */
     public function setForceCompile($force = true);
 
-} 
+}

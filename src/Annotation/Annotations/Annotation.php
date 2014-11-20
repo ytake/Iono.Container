@@ -16,4 +16,4 @@ abstract class Annotation
     /** @var bool  */
     public $required = true;
 
-} 
+}

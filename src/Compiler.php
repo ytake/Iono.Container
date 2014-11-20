@@ -34,8 +34,8 @@ class Compiler extends AbstractCompiler implements CompilerInterface
     /** @var string  */
     protected $compiledFileDirectory = "compiled";
 
-    /** @var null  */
-    protected $path = null;
+    /** @var string */
+    protected $path;
 
     /** @var bool  */
     protected $force = false;

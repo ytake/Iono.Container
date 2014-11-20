@@ -9,4 +9,4 @@ namespace Iono\Container\Exception;
 class AnnotationComponentException extends \Exception
 {
 
-} 
+}

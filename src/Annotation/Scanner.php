@@ -98,7 +98,7 @@ class Scanner extends Filesystem
         foreach($array as $row) {
             foreach($row as $dependencies) {
                 foreach($dependencies as $as => $value) {
-                    // @todo annotation Scope
+
                     $string .= "\$this->bind(\"{$value['as']}\", \"{$value['binding']}\");\n";
                     if($value['relation']) {
                         $string .= "\$this->relations[\"{$value['as']}\"] = \"{$value['binding']}\";\n";
@@ -119,4 +119,4 @@ class Scanner extends Filesystem
             return mkdir($this->compiler->getCompilationDirectory());
         }
     }
-} 
+}
