@@ -53,7 +53,7 @@ class Container extends \Illuminate\Container\Container
             throw new \Exception("annotation scanned file ot found");
         }
         require $this->compiler->getCompiledFile();
-        $this->reader = $this->compiler->getAnnotationReader();
+        $this->reader = $this->compiler->getAnnotationManager();
         return $this;
     }
 

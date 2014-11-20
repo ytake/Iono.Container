@@ -9,12 +9,14 @@ require __DIR__ . "/../vendor/autoload.php";
  * @see Iono\_TestContainer\AutowiredDemo 実行クラス
  * @see Iono\_TestContainer\Repository Component登録されたクラス
  */
-$annotation = new \Iono\Container\Annotation\AnnotationManager();
-$compiler = new \Iono\Container\Compiler($annotation->driver("apc")->reader());
-
+$config = new \Iono\Container\Configure();
+$compiler = new \Iono\Container\Compiler(
+	new \Iono\Container\Annotation\AnnotationManager(),
+	$config->set(require dirname(__FILE__) . '/../resource/config.php')
+);
 /** @var Iono\Container\Container $compilerContainer */
 $compilerContainer = new \Iono\Container\Container($compiler);
-$class = $compilerContainer->setContainer()->make("Iono\_TestContainer\AutowiredDemo");
+$class = $compilerContainer->setContainer()->make("Iono\_TestContainer\Resolve\AutowiredDemo");
 
 $class->getter();
 /**

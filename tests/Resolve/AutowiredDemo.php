@@ -1,6 +1,7 @@
 <?php
 namespace Iono\_TestContainer\Resolve;
 
+use Iono\Container\Annotation\Annotations\Value;
 use Iono\Container\Annotation\Annotations\Autowired;
 
 class AutowiredDemo
@@ -12,7 +13,11 @@ class AutowiredDemo
      */
     protected $repository;
 
-    protected $noeInject;
+	/**
+	 * @var
+	 * @Value("not")
+	 */
+    protected $noInject;
 
     public function getter()
     {

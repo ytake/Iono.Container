@@ -5,7 +5,7 @@ use ReflectionClass;
 use PhpParser\BuilderFactory;
 use PhpParser\Node\Stmt\TraitUse;
 use PhpParser\PrettyPrinter\Standard;
-use Doctrine\Common\Annotations\Reader;
+use Iono\Container\Annotation\AnnotationManager;
 
 /**
  * Class Compiler
@@ -46,16 +46,21 @@ class Compiler extends AbstractCompiler implements CompilerInterface
     /** @var array  */
     protected $traits = [];
 
-	/** @var Reader  */
+	/** @var AnnotationManager  */
 	protected $reader;
 
-    /**
-     * @param Reader $reader
-     */
-    public function __construct(Reader $reader)
+	/** @var ConfigureInterface */
+	protected $config;
+
+	/**
+	 * @param AnnotationManager $reader
+	 * @param ConfigureInterface $config
+	 */
+    public function __construct(AnnotationManager $reader, ConfigureInterface $config)
     {
         $this->reader = $reader;
-        $this->setCompilePath();
+	    $this->config = $config;
+	    $this->configure();
     }
 
     /**
@@ -189,11 +194,11 @@ class Compiler extends AbstractCompiler implements CompilerInterface
 
     /**
      * annotation getter
-     * @return Reader
+     * @return \Doctrine\Common\Annotations\Reader
      */
-    public function getAnnotationReader()
+    public function getAnnotationManager()
     {
-        return $this->reader;
+        return $this->reader->reader();
     }
 
     /**
@@ -328,4 +333,22 @@ class Compiler extends AbstractCompiler implements CompilerInterface
             }
         }
     }
+
+	/**
+	 * @return void
+	 */
+	protected function configure()
+	{
+		$this->reader->setFilePath($this->config['cache.path']);
+		$this->reader->driver($this->config['annotation.cache.driver']);
+		$this->setCompilePath($this->config['cache.path']);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function scanTargetPath()
+	{
+		return $this->config['scan.target.path'];
+	}
 }
