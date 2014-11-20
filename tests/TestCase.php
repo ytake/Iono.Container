@@ -56,4 +56,4 @@ class TestCase extends \PHPUnit_Framework_TestCase
         $property->setAccessible(true);
         return $property;
     }
-} 
+}

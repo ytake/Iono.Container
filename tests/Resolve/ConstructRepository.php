@@ -19,4 +19,4 @@ class ConstructRepository implements RepositoryInterface
         return $this->class;
     }
 
-} 
+}

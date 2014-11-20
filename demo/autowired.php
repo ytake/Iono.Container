@@ -16,7 +16,7 @@ $compiler = new \Iono\Container\Compiler($annotation->driver("apc")->reader());
 $compilerContainer = new \Iono\Container\Container($compiler);
 $class = $compilerContainer->setContainer()->make("Iono\_TestContainer\AutowiredDemo");
 
-var_dump($class->getter());
+$class->getter();
 /**
  * はじめにbin/scanner.phpを実行してください
  * Component が記述されたクラスを保存します

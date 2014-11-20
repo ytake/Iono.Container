@@ -46,4 +46,4 @@ class Resolver
         }
         return $propertyAnnotation;
     }
-} 
+}

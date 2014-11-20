@@ -15,4 +15,4 @@ final class Value extends Annotation
     /** @var string */
     public $value;
 
-} 
+}

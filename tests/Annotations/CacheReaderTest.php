@@ -33,4 +33,4 @@ class ApcCacheReaderTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertInstanceOf("Doctrine\Common\Annotations\AnnotationReader", $this->manager->driver()->reader());
     }
-} 
+}

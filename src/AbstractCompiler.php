@@ -9,6 +9,7 @@ namespace Iono\Container;
  */
 abstract class AbstractCompiler
 {
+
     /** @var  */
     protected $factory;
 
@@ -20,4 +21,4 @@ abstract class AbstractCompiler
      * @return void
      */
     abstract protected function activate();
-} 
+}
