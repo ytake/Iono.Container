@@ -118,9 +118,11 @@ class Container extends \Illuminate\Container\Container
         $name = $reflector->getName();
         $file = $this->compiler->getPropertyCompiledFile($name);
         if (count($reflector->getProperties())) {
-            if (file_exists($file)) {
+
+            if (file_exists($file) && !$this->compiler->getForce()) {
                 $this->dependencies = require $file;
                 $this->annotated = true;
+
             } else {
                 /** @var \ReflectionProperty $property */
                 foreach ($reflector->getProperties() as $property) {

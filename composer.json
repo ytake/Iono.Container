@@ -38,5 +38,10 @@
                 "tests/"
             ]
         }
+    },
+    "scripts": {
+        "pre-install-cmd": [
+            "php bin/initialize.php"
+        ]
     }
 }

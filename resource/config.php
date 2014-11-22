@@ -4,10 +4,9 @@
  */
 return [
 	//
-	'cache.path' => dirname(__FILE__),
+	'cache.path' => "/Applications/MAMP/htdocs/Container.Compiler/resource",
 
-	'scan.target.path' => dirname(__FILE__) . '/../tests/Resolve',
+	'scan.target.path' => "/Applications/MAMP/htdocs/Container.Compiler",
 
 	'annotation.cache.driver' => 'file',
 ];
-
