@@ -93,7 +93,6 @@ class Compiler extends AbstractCompiler implements CompilerInterface
                     ];
                 }
             }
-            $this->deleteCompiledFile();
             $this->activate();
             /** @var \PhpParser\Builder\Method $construct */
             $construct = $this->factory->method('__construct');
@@ -168,7 +167,8 @@ class Compiler extends AbstractCompiler implements CompilerInterface
      */
     public function getCompiledFile()
     {
-        $this->path = (is_null($this->path)) ? dirname(realpath(__DIR__)) . "/{$this->scannedFileDirectory}" : $this->path;
+        $this->path = (is_null($this->path))
+	        ? dirname(realpath(__DIR__)) . "/{$this->scannedFileDirectory}" : $this->path;
         return $this->path . '/' . $this->scannedFileName;
     }
 
@@ -339,7 +339,7 @@ class Compiler extends AbstractCompiler implements CompilerInterface
 	 */
 	protected function configure()
 	{
-		$this->reader->setFilePath($this->config['cache.path']);
+		$this->reader->setFilePath($this->config['cache.path'] . "/{$this->compiledFileDirectory}");
 		$this->reader->driver($this->config['annotation.cache.driver']);
 		$this->setCompilePath($this->config['cache.path']);
 	}
@@ -351,4 +351,13 @@ class Compiler extends AbstractCompiler implements CompilerInterface
 	{
 		return $this->config['scan.target.path'];
 	}
+
+    /**
+     * get compile mode
+     * @return bool
+     */
+    public function getForce()
+    {
+        return $this->force;
+    }
 }

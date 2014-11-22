@@ -67,4 +67,10 @@ interface CompilerInterface
 	 * @return mixed
 	 */
 	public function scanTargetPath();
+
+    /**
+     * get compile mode
+     * @return bool
+     */
+    public function getForce();
 }

@@ -65,6 +65,7 @@ class Scanner extends Filesystem
         $relations = [];
         /** @var \TokenReflection\ReflectionFile $file */
         foreach($files as $file) {
+            var_dump($file);
             $namespaces = $file->getNamespaces();
             foreach($namespaces as $namespace) {
                 /** @var \TokenReflection\ReflectionFileNamespace $namespace */
@@ -82,8 +83,10 @@ class Scanner extends Filesystem
                 }
             }
         }
-        $this->writeRelationFile($relations);
-        $this->makeDir();
+        if($this->writeRelationFile($relations)) {
+            echo "\033[32m generated component file \033[0m\n";
+            $this->makeDir();
+        }
         return;
     }
 
@@ -114,7 +117,7 @@ class Scanner extends Filesystem
     protected function makeDir()
     {
         if(!file_exists($this->compiler->getCompilationDirectory())) {
-            echo "\032[0;31m[make directory:{$this->compiler->getCompilationDirectory()}]\032[0m";
+            echo "\033[32m[make directory:{$this->compiler->getCompilationDirectory()}]\033[0m\n";
             return mkdir($this->compiler->getCompilationDirectory());
         }
     }
