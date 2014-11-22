@@ -65,7 +65,6 @@ class Scanner extends Filesystem
         $relations = [];
         /** @var \TokenReflection\ReflectionFile $file */
         foreach($files as $file) {
-            var_dump($file);
             $namespaces = $file->getNamespaces();
             foreach($namespaces as $namespace) {
                 /** @var \TokenReflection\ReflectionFileNamespace $namespace */
