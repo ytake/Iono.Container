@@ -1,5 +1,5 @@
 {
-    "name": "ytake/container",
+    "name": "iono/container",
     "description": "php service container library",
     "minimum-stability": "stable",
     "license": "MIT",
@@ -37,13 +37,11 @@
         "psr-4": {
             "Iono\\_TestContainer\\": [
                 "tests/",
-                "demo"
+                "demo/"
             ]
         }
     },
-    "scripts": {
-        "pre-install-cmd": [
-            "php bin/initialize.php"
-        ]
-    }
+    "bin": [
+        "bin/init.container.php"
+    ]
 }
