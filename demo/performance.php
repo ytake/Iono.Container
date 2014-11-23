@@ -28,7 +28,7 @@ $compiler = new \Iono\Container\Compiler(
 );
 $compiler->setForceCompile(false);
 $compilerContainer = new \Iono\Container\Container($compiler);
-$container = $compilerContainer->setContainer();
+$container = $compilerContainer->register();
 $start = microtime(true);
 for($i = 0; $i < 10; $i++) {
     $container->make("Iono\_TestContainer\Resolve\AutowiredDemo");

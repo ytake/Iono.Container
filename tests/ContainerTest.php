@@ -27,7 +27,7 @@ class ContainerTest extends TestCase
     public function testSetUpContainer()
     {
         $this->scanner();
-        $this->container->setContainer();
+        $this->container->register();
         $autowired = $this->container->make('Iono\_TestContainer\Resolve\AutowiredDemo');
         $this->assertInstanceOf("Iono_TestContainerResolveAutowiredDemo", $autowired);
     }

@@ -16,7 +16,7 @@ $compiler = new \Iono\Container\Compiler(
 );
 /** @var Iono\Container\Container $compilerContainer */
 $compilerContainer = new \Iono\Container\Container($compiler);
-$class = $compilerContainer->setContainer()->make("Iono\_TestContainer\Resolve\AutowiredDemo");
+$class = $compilerContainer->register()->make("Iono\_TestContainer\Resolve\AutowiredDemo");
 
 $class->getter();
 /**

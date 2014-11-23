@@ -47,7 +47,7 @@ class Container extends \Illuminate\Container\Container
      * @return $this
      * @throws \Exception
      */
-    public function setContainer()
+    public function register()
     {
         if(!file_exists($this->compiler->getCompiledFile())) {
             throw new \Exception("annotation scanned file ot found");
