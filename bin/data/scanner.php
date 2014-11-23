@@ -6,6 +6,7 @@
  */
 use Iono\Container\Annotation\Scanner;
 use Iono\Container\Annotation\Resolver;
+
 // Run mode
 $run = (isset($argv[1])) ? $argv[1] : null;
 
@@ -32,7 +33,7 @@ switch((string) $run) {
     // generate scan component file
     default:
         $annotationFinder = new Scanner(new Resolver, $compiler);
-        $files = $annotationFinder->setUpScanner($autoLoader);
+        $files = $annotationFinder->setUpScanner($autoLoader, ['tests', 'vendor']);
         $annotationFinder->scan($files);
         break;
 }

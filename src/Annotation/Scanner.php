@@ -4,6 +4,7 @@ namespace Iono\Container\Annotation;
 use TokenReflection\Broker;
 use Iono\Container\CompilerInterface;
 use Illuminate\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 
 /**
@@ -44,16 +45,23 @@ class Scanner extends Filesystem
 
     /**
      * @param $loader
-     * @param array $filters
+     * @param array $exclude
      * @return array
      */
-    public function setUpScanner($loader, array $filters = [])
+    public function setUpScanner($loader, array $exclude = [])
     {
         /** annotation register */
         AnnotationRegistry::registerLoader([$loader, 'loadClass']);
+        $finder = new Finder();
         $broker = new Broker(new Broker\Backend\Memory());
-        $broker->processDirectory($this->compiler->scanTargetPath(), $filters);
-        return $broker->getFiles();
+        $finder->files()
+            ->in($this->compiler->scanTargetPath())
+            ->exclude($exclude);
+        $files = [];
+        foreach ($finder as $file) {
+            $files[] = $broker->processFile($file, true);
+        }
+        return $files;
     }
 
     /**
