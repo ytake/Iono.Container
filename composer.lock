@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "cb7d71889f632cc7a418107d212ff04c",
+    "hash": "f6f6bf2d1c78d21b8ab568d35b8e0b19",
     "packages": [
         {
             "name": "andrewsville/php-token-reflection",
@@ -511,49 +511,6 @@
                 "parser"
             ],
             "time": "2013-01-12 18:59:04"
-        },
-        {
-            "name": "illuminate/config",
-            "version": "v4.2.9",
-            "target-dir": "Illuminate/Config",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/illuminate/config.git",
-                "reference": "811117b696b6cbc3c7974ffd615ece3d19e0d322"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/config/zipball/811117b696b6cbc3c7974ffd615ece3d19e0d322",
-                "reference": "811117b696b6cbc3c7974ffd615ece3d19e0d322",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/filesystem": "4.2.*",
-                "illuminate/support": "4.2.*",
-                "php": ">=5.4.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "4.2-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Illuminate\\Config": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Taylor Otwell",
-                    "email": "taylorotwell@gmail.com"
-                }
-            ],
-            "time": "2014-09-11 01:18:00"
         },
         {
             "name": "illuminate/container",

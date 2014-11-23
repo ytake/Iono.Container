@@ -27,7 +27,7 @@ class AnnotationContainerTest extends TestCase
 	public function testClassResolver()
 	{
 		/** @var  $class */
-		$class = $this->container->setContainer()->make("Iono\_TestContainer\Resolve\TestingClass");
+		$class = $this->container->register()->make("Iono\_TestContainer\Resolve\TestingClass");
 
 		$reflectionClass = new \ReflectionClass($class);
 		$this->assertInstanceOf("Iono\_TestContainer\Resolve\TestingClass", $class);
@@ -51,7 +51,7 @@ class AnnotationContainerTest extends TestCase
 	 */
     public function testAutowired()
     {
-	    $wired = $this->container->setContainer()->make("Iono\_TestContainer\Resolve\AutowiredDemo");
+	    $wired = $this->container->register()->make("Iono\_TestContainer\Resolve\AutowiredDemo");
 	    $reflectionClass = new \ReflectionClass($wired);
 	    $reflectionProperty = $reflectionClass->getProperty("noInject");
 	    $reflectionProperty->setAccessible(true);

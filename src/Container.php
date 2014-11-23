@@ -47,7 +47,7 @@ class Container extends \Illuminate\Container\Container
      * @return $this
      * @throws \Exception
      */
-    public function setContainer()
+    public function register()
     {
         if(!file_exists($this->compiler->getCompiledFile())) {
             throw new \Exception("annotation scanned file ot found");
@@ -72,6 +72,9 @@ class Container extends \Illuminate\Container\Container
         // to parent
         if(is_null($this->compiler)) {
             return parent::build($concrete, $parameters);
+        }
+        if(is_null($this->reader)) {
+            throw new \ErrorException("method Container::register() must be called");
         }
         $reflector = $this->instantiable($concrete);
         $constructor = $reflector->getConstructor();
@@ -117,6 +120,7 @@ class Container extends \Illuminate\Container\Container
     {
         $name = $reflector->getName();
         $file = $this->compiler->getPropertyCompiledFile($name);
+
         if (count($reflector->getProperties())) {
 
             if (file_exists($file) && !$this->compiler->getForce()) {

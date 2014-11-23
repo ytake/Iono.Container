@@ -30,6 +30,6 @@ if(!@file_put_contents($defaultResourcePath . "/config.php", $config)) {
 // replace default configure file path
 $output = str_replace("__CONFIGURE__", '"' . $defaultResourcePath . '/config.php"', $file);
 // put scanner script file
-if(!@file_put_contents(realpath(null) . "/scanner.php", $output)) {
-    echo "\033[31mFailed to make config file:" .realpath(null) ."/scanner.php, Permission denied\033[0m\n";
+if(!@file_put_contents(dirname($defaultResourcePath) . "/scanner.php", $output)) {
+    echo "\033[31mFailed to make config file:" .dirname($defaultResourcePath) ."/scanner.php, Permission denied\033[0m\n";
 }
