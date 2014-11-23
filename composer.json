@@ -1,9 +1,9 @@
 {
     "name": "iono/container",
-    "description": "php service container library",
+    "description": "spring framework style service container library",
     "minimum-stability": "stable",
     "license": "MIT",
-    "keywords": ["container", "inject", "reflection"],
+    "keywords": ["container", "field injection", "reflection", "annotation"],
     "authors": [
         {
             "name": "yuuki.takezawa",
