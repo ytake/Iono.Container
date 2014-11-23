@@ -73,6 +73,9 @@ class Container extends \Illuminate\Container\Container
         if(is_null($this->compiler)) {
             return parent::build($concrete, $parameters);
         }
+        if(is_null($this->reader)) {
+            throw new \ErrorException("method Container::register() must be called");
+        }
         $reflector = $this->instantiable($concrete);
         $constructor = $reflector->getConstructor();
 
