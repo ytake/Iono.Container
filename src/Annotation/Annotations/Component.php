@@ -18,13 +18,15 @@ final class Component extends Annotation
 
     /**
      * @param \ReflectionClass $reflectionClass
+     * @param string $scope
      * @return array
      * @throws AnnotationComponentException
      */
-    public function resolver(\ReflectionClass $reflectionClass)
+    public function resolver(\ReflectionClass $reflectionClass, $scope = "prototype")
     {
         // implements interfaces
         $interfaces = $reflectionClass->getInterfaceNames();
+        $scope = ($scope === "singleton") ? true : false;
         if(!count($interfaces)) {
             if(!$this->value) {
                 throw new AnnotationComponentException("mismatch");
@@ -33,7 +35,7 @@ final class Component extends Annotation
                 $this->value => [
                     'binding' => $reflectionClass->getName(),
                     'as' => $this->value,
-                    'scope' => null,
+                    'scope' => $scope,
                     'relation' => $reflectionClass->getName()
                 ]
             ];
@@ -42,7 +44,7 @@ final class Component extends Annotation
             $interfaces[0] => [
                 'binding' => $reflectionClass->getName(),
                 'as' => $interfaces[0],
-                'scope' => null,
+                'scope' => $scope,
                 'relation' => null
             ]
         ];

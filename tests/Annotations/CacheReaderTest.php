@@ -3,7 +3,7 @@ namespace Iono\_TestContainer\Annotations;
 
 use Iono\Container\Annotation\AnnotationManager;
 
-class ApcCacheReaderTest extends \PHPUnit_Framework_TestCase
+class CacheReaderTest extends \PHPUnit_Framework_TestCase
 {
     /** @var   */
     protected $reader;
