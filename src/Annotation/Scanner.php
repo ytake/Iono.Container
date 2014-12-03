@@ -105,13 +105,15 @@ class Scanner extends Filesystem
     {
         $string = "<?php\n";
         foreach($array as $row) {
-            foreach($row as $dependencies) {
-                foreach($dependencies as $as => $value) {
-
+            foreach($row as $value) {
+                if(!$value['scope']) {
                     $string .= "\$this->bind(\"{$value['as']}\", \"{$value['binding']}\");\n";
-                    if($value['relation']) {
-                        $string .= "\$this->relations[\"{$value['as']}\"] = \"{$value['binding']}\";\n";
-                    }
+                }
+                if($value['scope']) {
+                    $string .= "\$this->singleton(\"{$value['as']}\", \"{$value['binding']}\");\n";
+                }
+                if ($value['relation']) {
+                    $string .= "\$this->relations[\"{$value['as']}\"] = \"{$value['binding']}\";\n";
                 }
             }
         }

@@ -62,6 +62,7 @@ class Container extends \Illuminate\Container\Container
      * @param  array   $parameters
      * @return mixed
      * @throws BindingResolutionException
+     * @throws \ErrorException
      * @see \Illuminate\Container\Container::build
      */
     public function build($concrete, $parameters = [])

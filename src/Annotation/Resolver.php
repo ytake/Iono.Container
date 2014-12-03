@@ -1,6 +1,9 @@
 <?php
 namespace Iono\Container\Annotation;
 
+use Iono\Container\Annotation\Annotations\Scope;
+use Iono\Container\Annotation\Annotations\Component;
+
 /**
  * Class Resolver
  * @package Iono\Container\Annotation
@@ -19,10 +22,18 @@ class Resolver
     public function classAnnotation(array $annotations, \ReflectionClass $reflectionClass)
     {
         $classAnnotation = [];
+        $component = null;
+        $scope = "prototype";
         foreach($annotations as $annotation) {
-            if($annotation instanceof \Iono\Container\Annotation\Annotations\Component) {
-                $classAnnotation[] = $annotation->resolver($reflectionClass);
+            if($annotation instanceof Scope) {
+                $scope = $annotation->value;
             }
+            if($annotation instanceof Component) {
+                $component = $annotation;
+            }
+        }
+        if($component instanceof Component) {
+            $classAnnotation = $component->resolver($reflectionClass, $scope);
         }
         return $classAnnotation;
     }

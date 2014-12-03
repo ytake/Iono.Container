@@ -49,21 +49,19 @@ class CompilerTest extends TestCase
     {
         $result = $this->compiler->builder(['Iono\_TestContainer\InstanceTest' => []]);
         $this->assertInternalType('array', $result);
-        $this->assertEquals('\Iono_TestContainerInstanceTest', $result['class']);
+        $this->assertInternalType('string', $result['class']);
         $this->assertTrue(file_exists($result['file']));
     }
 
     public function testCompileClass()
     {
         $reflection = $this->compiler->getCompilation(['Iono\_TestContainer\InstanceTest' => []]);
-        $this->assertEquals($reflection->getName(), 'Iono_TestContainerInstanceTest');
         $this->assertInstanceOf('ReflectionClass', $reflection);
-        $this->assertInstanceOf('\Iono_TestContainerInstanceTest', $reflection->newInstance());
+        $this->assertInstanceOf('Iono\_TestContainer\InstanceTest', $reflection->newInstance());
         $this->compiler->setForceCompile(true);
         $reflection = $this->compiler->getCompilation(['Iono\_TestContainer\InstanceTest' => []]);
-        $this->assertEquals($reflection->getName(), 'Iono_TestContainerInstanceTest');
         $this->assertInstanceOf('ReflectionClass', $reflection);
-        $this->assertInstanceOf('\Iono_TestContainerInstanceTest', $reflection->newInstance());
+        $this->assertInstanceOf('Iono\_TestContainer\InstanceTest', $reflection->newInstance());
     }
 }
 
