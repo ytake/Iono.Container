@@ -158,6 +158,36 @@ interface AnnotationRepositoryInterface {}
 class AnnotationRepository implements AnnotationRepositoryInterface {}
 ```
 
+### @Scope
+singleton or prototype Scope annotation  
+required @Component annotation (default prototype)
+```php
+use Ytake\Container\Annotations\Annotation\Component;
+
+/**
+ * Interface RepositoryInterface
+ */
+interface AnnotationRepositoryInterface {}
+
+/**
+ * @Component
+ * @Scope("singleton") 
+ * Class Repository
+ */
+class AnnotationRepository implements AnnotationRepositoryInterface {}
+```
+
+or named component annotation
+```php
+/**
+ * @Component("hello")
+ * @Scope("singleton") 
+ * Class Repository
+ */
+class AnnotationRepository {}
+```
+
+
 ### @Autowired
 フィールドインジェクション  
 annotation based field injection(Spring's own **@Autowired**)  
@@ -177,6 +207,7 @@ class TestingClass
 ```
 
 ### @Component Named
+named component annotation  
 クラス自体に名前をつけてコンテナに登録します
 ```php
 /**
@@ -196,7 +227,7 @@ class Processer
     /**
      * @Value('hello')
      */
-    $protected $hello;
+    protected $hello;
 }
 ```
 **詳しくはdemoディレクトリをご覧ください**
