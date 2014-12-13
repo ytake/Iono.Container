@@ -1,9 +1,9 @@
 {
     "name": "iono/container",
-    "description": "spring framework style service container library",
+    "description": "spring framework style dependency injection container",
     "minimum-stability": "stable",
     "license": "MIT",
-    "keywords": ["container", "field injection", "reflection", "annotation"],
+    "keywords": ["container", "field injection", "reflection", "annotation", "dependency injection"],
     "authors": [
         {
             "name": "yuuki.takezawa",
