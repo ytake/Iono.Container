@@ -148,7 +148,7 @@ class Compiler extends AbstractCompiler implements CompilerInterface
      */
     protected function getClassName($class)
     {
-        return str_replace('\\', '', $class);
+        return str_replace('\\', '', $class) . md5($class);
     }
 
     /**

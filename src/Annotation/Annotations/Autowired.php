@@ -1,6 +1,8 @@
 <?php
 namespace Iono\Container\Annotation\Annotations;
 
+use Iono\Container\Exception\AnnotationAutowiredException;
+
 /**
  * @Annotation
  * @Target("PROPERTY")
@@ -19,14 +21,14 @@ final class Autowired extends Annotation
 
     /**
      * @return null|string
-     * @throws \ErrorException
+     * @throws AnnotationAutowiredException
      */
     public function resolver()
     {
         $this->value = ltrim($this->value, '\\');
         if($this->required) {
-            if(!($this->value) ? $this->value : null) {
-                throw new \ErrorException();
+            if(empty($this->value)) {
+                throw new AnnotationAutowiredException("context expected", 500);
             }
             return $this->value;
         }

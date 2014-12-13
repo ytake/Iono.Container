@@ -1,13 +1,14 @@
 <?php
 namespace Iono\_TestContainer\Resolve;
 
+use Iono\Container\Annotation\Annotations\Scope;
 use Iono\Container\Annotation\Annotations\Component;
-use Iono\Container\Annotation\Annotations\Autowired;
 
 /**
  * Class Repository
  * @package Iono\_TestContainer
  * @Component("not")
+ * @Scope("singleton")
  */
 class NotImplementRepository
 {
