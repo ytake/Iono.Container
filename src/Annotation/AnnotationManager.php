@@ -19,10 +19,10 @@ class AnnotationManager
     /** @var string default annotation driver */
     protected $driver = "simple";
 
-    /** @var string  */
+    /** @var string */
     protected $path;
 
-    /** @var bool  */
+    /** @var bool */
     protected $debug = false;
 
     public function __construct()
@@ -81,7 +81,7 @@ class AnnotationManager
     public function reader()
     {
         $selectedReader = "get" . ucfirst($this->driver) . "Reader";
-        foreach($this->getDirectory(dirname(__FILE__) . '/Annotations') as $file) {
+        foreach ($this->getDirectory(dirname(__FILE__) . '/Annotations') as $file) {
             AnnotationRegistry::registerFile($file);
         }
         return $this->$selectedReader();
@@ -96,7 +96,7 @@ class AnnotationManager
         $result = [];
         $scanDir = scandir($dir);
         foreach ($scanDir as $key => $value) {
-            if (!in_array($value, [".",".."])) {
+            if (!in_array($value, [".", ".."])) {
                 if (is_dir($dir . DIRECTORY_SEPARATOR . $value)) {
                     $result[$value] = $this->getDirectory($dir . DIRECTORY_SEPARATOR . $value);
                 } else {

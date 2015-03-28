@@ -13,9 +13,9 @@
     "require": {
         "php": ">=5.4",
         "ext-tokenizer": "*",
-        "illuminate/filesystem": "4.2.*",
-        "illuminate/container": "4.2.*",
-        "nikic/php-parser": "1.*",
+        "illuminate/filesystem": "5.*",
+        "illuminate/container": "5.*",
+        "nikic/php-parser": "1.0.*",
         "andrewsville/php-token-reflection": "1.*",
         "classpreloader/classpreloader": "1.*",
         "doctrine/annotations": "1.*",
