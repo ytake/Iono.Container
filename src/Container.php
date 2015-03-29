@@ -16,23 +16,23 @@ use Illuminate\Container\BindingResolutionException;
 class Container extends \Illuminate\Container\Container
 {
 
-    /** @var CompilerInterface  */
+    /** @var CompilerInterface */
     protected $compiler;
 
-    /** @var bool  */
+    /** @var bool */
     protected $readable = false;
 
-    /** @var bool  */
+    /** @var bool */
     protected $annotated = false;
 
-    /** @var array  */
+    /** @var array */
     protected $dependencies = [];
 
-    /** @var \Doctrine\Common\Annotations\Reader  */
+    /** @var \Doctrine\Common\Annotations\Reader */
     protected $reader;
 
-    /** @var array  */
-    protected $relations = [];
+    /** @var array */
+    protected $map = [];
 
     /**
      * @param CompilerInterface $compiler
@@ -49,7 +49,7 @@ class Container extends \Illuminate\Container\Container
      */
     public function register()
     {
-        if(!file_exists($this->compiler->getCompiledFile())) {
+        if (!file_exists($this->compiler->getCompiledFile())) {
             throw new \Exception("annotation scanned file ot found");
         }
         require $this->compiler->getCompiledFile();
@@ -58,8 +58,8 @@ class Container extends \Illuminate\Container\Container
     }
 
     /**
-     * @param  string  $concrete
-     * @param  array   $parameters
+     * @param  string $concrete
+     * @param  array $parameters
      * @return mixed
      * @throws BindingResolutionException
      * @throws \ErrorException
@@ -71,10 +71,10 @@ class Container extends \Illuminate\Container\Container
             return $concrete($this, $parameters);
         }
         // to parent
-        if(is_null($this->compiler)) {
+        if (is_null($this->compiler)) {
             return parent::build($concrete, $parameters);
         }
-        if(is_null($this->reader)) {
+        if (is_null($this->reader)) {
             throw new \ErrorException("method Container::register() must be called");
         }
         $reflector = $this->instantiable($concrete);
@@ -84,13 +84,13 @@ class Container extends \Illuminate\Container\Container
         $this->propertyResolver($reflector);
 
         if (is_null($constructor)) {
-            if($this->annotated) {
-                return $this->newInstance($parameters);
+            if ($this->annotated) {
+                return $this->resolveInstance($parameters);
             }
             return new $concrete;
         }
-        if($this->annotated) {
-            return $this->newInstance($parameters);
+        if ($this->annotated) {
+            return $this->resolveInstance($parameters);
         }
 
         $dependencies = $constructor->getParameters();
@@ -100,10 +100,42 @@ class Container extends \Illuminate\Container\Container
     }
 
     /**
+     * Resolve the given type from the container.
+     * Rename method
+     * @param  string $abstract
+     * @param  array $parameters
+     * @return mixed
+     */
+    public function newInstance($abstract, $parameters = [])
+    {
+        $abstract = $this->getAlias($abstract);
+        if (isset($this->instances[$abstract])) {
+            return $this->instances[$abstract];
+        }
+        $concrete = $this->getConcrete($abstract);
+
+        if ($this->isBuildable($concrete, $abstract)) {
+            $object = $this->build($concrete, $parameters);
+        } else {
+            $object = $this->newInstance($concrete, $parameters);
+        }
+
+        foreach ($this->getExtenders($abstract) as $extender) {
+            $object = $extender($object, $this);
+        }
+        if ($this->isShared($abstract)) {
+            $this->instances[$abstract] = $object;
+        }
+        $this->fireResolvingCallbacks($abstract, $object);
+        $this->resolved[$abstract] = true;
+        return $object;
+    }
+
+    /**
      * @param array $parameters
      * @return object
      */
-    protected function newInstance(array $parameters)
+    protected function resolveInstance(array $parameters)
     {
         $reflectionClass = $this->compiler->getCompilation($this->dependencies);
         $constructor = $reflectionClass->getConstructor();
@@ -119,6 +151,7 @@ class Container extends \Illuminate\Container\Container
      */
     protected function propertyResolver(ReflectionClass $reflector)
     {
+
         $name = $reflector->getName();
         $file = $this->compiler->getPropertyCompiledFile($name);
 
@@ -134,20 +167,22 @@ class Container extends \Illuminate\Container\Container
                     $autoWired = $this->reader->getPropertyAnnotation(
                         $property, "Iono\Container\Annotation\Annotations\Autowired"
                     );
-                    if($autoWired) {
+
+                    if ($autoWired) {
                         $this->dependencies[$name][$property->getName()] = $autoWired->resolver();
                     }
                     $value = $this->reader->getPropertyAnnotation(
                         $property, "Iono\Container\Annotation\Annotations\Value"
                     );
-                    if($value) {
+                    if ($value) {
                         $this->dependencies[$name][$property->getName()] = $value->value;
                     }
                 }
-                if(isset($this->dependencies[$name])) {
+                if (isset($this->dependencies[$name])) {
                     $this->annotated = true;
                     $this->compiler->putPropertyCompiledFile($file, $this->dependencies);
-                    $this->propertyResolver($reflector);
+
+                    // $this->propertyResolver($reflector);
                 }
             }
         }
@@ -177,7 +212,7 @@ class Container extends \Illuminate\Container\Container
         if ($parameter->isDefaultValueAvailable()) {
             return $parameter->getDefaultValue();
         }
-        if(isset($this->relations[$parameter->getName()])) {
+        if (isset($this->map[$parameter->getName()])) {
             return $this->make($parameter->getName());
         }
         $message = "Unresolvable dependency resolving [$parameter] in class {$parameter->getDeclaringClass()->getName()}";

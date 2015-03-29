@@ -102,7 +102,7 @@ put resource/scanned.binding.php file
 resource/scanned.binding.phpが生成されます  
 ```php
 $this->bind("repository", "Acme\Container\Repository");
-$this->relations["repository"] = "Acme\Container\Repository";
+$this->map["repository"] = "Acme\Container\Repository";
 ```
 ##### field injection
 ```php

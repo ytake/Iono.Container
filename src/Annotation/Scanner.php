@@ -70,7 +70,7 @@ class Scanner extends Filesystem
      */
     public function scan(array $files)
     {
-        $relations = [];
+        $map = [];
         /** @var \TokenReflection\ReflectionFile $file */
         foreach($files as $file) {
             $namespaces = $file->getNamespaces();
@@ -84,13 +84,13 @@ class Scanner extends Filesystem
                         $annotations = $this->compiler->getAnnotationManager()
                             ->getClassAnnotations($reflectionClass);
                         if(count($annotations)) {
-                            $relations[] = $this->resolver->classAnnotation($annotations, $reflectionClass);
+                            $map[] = $this->resolver->classAnnotation($annotations, $reflectionClass);
                         }
                     }
                 }
             }
         }
-        if($this->writeRelationFile($relations)) {
+        if($this->writeRelationFile($map)) {
             echo "\033[32m generated component file \033[0m\n";
             $this->makeDir();
         }
@@ -112,11 +112,12 @@ class Scanner extends Filesystem
                 if($value['scope']) {
                     $string .= "\$this->singleton(\"{$value['as']}\", \"{$value['binding']}\");\n";
                 }
-                if ($value['relation']) {
-                    $string .= "\$this->relations[\"{$value['as']}\"] = \"{$value['binding']}\";\n";
+                if ($value['map']) {
+                    $string .= "\$this->map[\"{$value['as']}\"] = \"{$value['binding']}\";\n";
                 }
             }
         }
+        var_dump($string);
         return $this->put($this->compiler->getCompiledFile(), $string);
     }
 

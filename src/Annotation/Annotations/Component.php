@@ -36,7 +36,7 @@ final class Component extends Annotation
                     'binding' => $reflectionClass->getName(),
                     'as' => $this->value,
                     'scope' => $scope,
-                    'relation' => $reflectionClass->getName()
+                    'map' => $reflectionClass->getName()
                 ]
             ];
         }
@@ -45,7 +45,7 @@ final class Component extends Annotation
                 'binding' => $reflectionClass->getName(),
                 'as' => $interfaces[0],
                 'scope' => $scope,
-                'relation' => null
+                'map' => null
             ]
         ];
     }
